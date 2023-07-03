@@ -1,0 +1,5 @@
+﻿  JungleExploration.cpp
+MSVCRTD.lib(exe_main.obj) : error LNK2019: unresolved external symbol _main referenced in function "int __cdecl invoke_main(void)" (?invoke_main@@YAHXZ)
+D:\Installations\Vulkan\App\Lib\vulkan-1.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+D:\Installations\Vulkan\glfw-3.3.8.bin.WIN64\GLFW\lib-vc2019\glfw3.lib : warning LNK4272: library machine type 'x64' conflicts with target machine type 'x86'
+D:\Projects\VulkanProject\JungleExploration\Debug\JungleExploration.exe : fatal error LNK1120: 1 unresolved externals

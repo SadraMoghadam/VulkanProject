@@ -1,0 +1,3 @@
+﻿LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+JungleExploration.obj : error LNK2019: unresolved external symbol "public: __cdecl JungleExploration::JungleExploration(void)" (??0JungleExploration@@QEAA@XZ) referenced in function main
+D:\Projects\VulkanProject\JungleExploration\x64\Debug\JungleExploration.exe : fatal error LNK1120: 1 unresolved externals
