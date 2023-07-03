@@ -1,3 +1,25 @@
-﻿LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-JungleExploration.obj : error LNK2019: unresolved external symbol "public: __cdecl JungleExploration::JungleExploration(void)" (??0JungleExploration@@QEAA@XZ) referenced in function main
-D:\Projects\VulkanProject\JungleExploration\x64\Debug\JungleExploration.exe : fatal error LNK1120: 1 unresolved externals
+﻿  JungleExploration.cpp
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(308,31): warning C4099: 'VertexDescriptor': type name first seen using 'struct' now seen using 'class'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(162): message : see declaration of 'VertexDescriptor'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(310,22): warning C4099: 'Texture': type name first seen using 'struct' now seen using 'class'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(208): message : see declaration of 'Texture'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(311,23): warning C4099: 'Pipeline': type name first seen using 'struct' now seen using 'class'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(250): message : see declaration of 'Pipeline'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(312,34): warning C4099: 'DescriptorSetLayout': type name first seen using 'struct' now seen using 'class'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(242): message : see declaration of 'DescriptorSetLayout'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(313,28): warning C4099: 'DescriptorSet': type name first seen using 'struct' now seen using 'class'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(289): message : see declaration of 'DescriptorSet'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1531,1): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1794,16): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1795,16): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+          with
+          [
+              T=float
+          ]
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1836,1): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2607,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+  JungleExploration.vcxproj -> D:\Projects\VulkanProject\JungleExploration\x64\Debug\JungleExploration.exe

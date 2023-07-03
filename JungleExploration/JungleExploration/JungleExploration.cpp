@@ -1,62 +1,66 @@
 #include "Starter.hpp"
 
 
-class JungleExploration : public BaseProject
+class JungleExploration : public BaseProject 
 {
-public:
-	JungleExploration();
-
-private:
+protected:
 	float Ar;
 
-	void setWindowParameters() {
-		// window size, titile and initial background
+	void setWindowParameters() 
+	{
 		windowWidth = 800;
 		windowHeight = 600;
 		windowTitle = "Jungle Exploration";
-		windowResizable = GLFW_TRUE;
-		initialBackgroundColor = { 0.0f, 0.005f, 0.01f, 1.0f };
-
-		/* TODO */
-		uniformBlocksInPool = 9;
-		texturesInPool = 7;
-		setsInPool = 9;
-
+    	windowResizable = GLFW_TRUE;
+		initialBackgroundColor = {0.0f, 0.2f, 0.01f, 1.0f};
+		
 		Ar = (float)windowWidth / (float)windowHeight;
 	}
-
-	void onWindowResize(int w, int h) {
+	
+	void onWindowResize(int w, int h) 
+	{
 		Ar = (float)w / (float)h;
 	}
+	
+	void localInit() 
+	{
+		/* TODO */
+	}
+	
+	void pipelinesAndDescriptorSetsInit() 
+	{
+		/* TODO */
+	}
 
+	void pipelinesAndDescriptorSetsCleanup() 
+	{
+		/* TODO */
+	}
+	
+	void localCleanup() 
+	{
+		/* TODO */
+	}
+	
+	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage) 
+	{
+		/* TODO */
+	}
 
-	/* TODO */
-	void localInit() {}
-
-	/* TODO */
-	void pipelinesAndDescriptorSetsInit() {}
-
-	/* TODO */
-	void pipelinesAndDescriptorSetsCleanup() {}
-
-	/* TODO */
-	void localCleanup() {}
-
-	/* TODO */
-	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage) {}
-
-	/* TODO */
-	void updateUniformBuffer(uint32_t currentImage) {}
+	void updateUniformBuffer(uint32_t currentImage) 
+	{
+		/* TODO */
+	}	
 };
 
 
+// This is the main: probably you do not need to touch this!
 int main() {
-    JungleExploration app;
+	JungleExploration app;
 
     try {
         app.run();
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return EXIT_FAILURE;
     }
