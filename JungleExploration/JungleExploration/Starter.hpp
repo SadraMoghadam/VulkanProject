@@ -313,10 +313,12 @@ class BaseProject {
 	friend class DescriptorSet;
 public:
 	virtual void setWindowParameters() = 0;
+	virtual void setDescriptorPool() = 0;
     void run() {
     	windowResizable = GLFW_FALSE;
 
     	setWindowParameters();
+		setDescriptorPool();
         initWindow();
         initVulkan();
         mainLoop();

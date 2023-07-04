@@ -23,5 +23,11 @@
     <ClInclude Include="Starter.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="Window.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

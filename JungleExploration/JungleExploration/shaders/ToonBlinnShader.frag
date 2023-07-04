@@ -7,13 +7,23 @@ layout(location = 2) in vec2 fragUV;
 
 layout(location = 0) out vec4 outColor;
 
-layout(binding = 1) uniform sampler2D tex;
-
-layout(binding = 2) uniform GlobalUniformBufferObject {
-	vec3 lightDir;
-	vec4 lightColor;
-	vec3 eyePos;
+layout(set = 0, binding = 0) uniform GlobalUniformBufferObject {
+	vec3 DlightDir;		// direction of the direct light
+	vec3 DlightColor;	// color of the direct light
+	vec3 AmbLightColor;	// ambient light
+	vec3 eyePos;		// position of the viewer
 } gubo;
+
+layout(set = 1, binding = 0) uniform UniformBufferObject {
+	float amb;
+	float gamma;
+	vec3 sColor;
+	mat4 mvpMat;
+	mat4 mMat;
+	mat4 nMat;
+} ubo;
+
+layout(set = 1, binding = 1) uniform sampler2D tex;
 
 vec3 BRDF(vec3 V, vec3 N, vec3 L, vec3 Md, vec3 Ms, float gamma) {
 	//vec3 V  - direction of the viewer
@@ -33,8 +43,8 @@ vec3 BRDF(vec3 V, vec3 N, vec3 L, vec3 Md, vec3 Ms, float gamma) {
 	{
 		Md = vec3(0.0f);	
 	}
-	vec3 Rlx = 2 * N * dot(L, N) - L;
-	vec3 specular = Ms * pow(clamp(dot(V, Rlx), 0.0, 1.0), gamma);
+	vec3 rlx = 2 * N * dot(L, N) - L;
+	vec3 specular = Ms * pow(clamp(dot(V, rlx), 0.0, 1.0), gamma);
 	vec3 diffuse = Md;
 	return specular + diffuse;
 }
@@ -43,11 +53,13 @@ void main() {
 	vec3 Norm = normalize(fragNorm);
 	vec3 EyeDir = normalize(gubo.eyePos - fragPos);
 	
-	vec3 lightDir = gubo.lightDir;
-	vec3 lightColor = gubo.lightColor.rgb;
+	vec3 lightDir = gubo.DlightDir;
+	vec3 lightColor = gubo.DlightColor.rgb;
 
-	vec3 DiffSpec = BRDF(EyeDir, Norm, lightDir, texture(tex, fragUV).rgb, vec3(1.0f), 160.0f);
-	vec3 Ambient = texture(tex, fragUV).rgb * 0.05f;
+	vec3 DiffSpec = BRDF(EyeDir, Norm, lightDir, texture(tex, fragUV).rgb, ubo.sColor, ubo.gamma);
+	vec3 Ambient = texture(tex, fragUV).rgb * ubo.amb * gubo.AmbLightColor;
 	
 	outColor = vec4(clamp(0.95 * (DiffSpec) * lightColor.rgb + Ambient,0.0,1.0), 1.0f);
 }
+
+

@@ -9,17 +9,34 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(312,34
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(242): message : see declaration of 'DescriptorSetLayout'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(313,28): warning C4099: 'DescriptorSet': type name first seen using 'struct' now seen using 'class'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(289): message : see declaration of 'DescriptorSet'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1531,1): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1794,16): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1533,1): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1796,16): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1795,16): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1797,16): warning C4244: '=': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=float
           ]
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1836,1): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2607,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1838,1): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2609,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=unsigned int
+          ]
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1993): message : while compiling class template member function 'void Model<VertexMesh>::loadModelOBJ(std::string)'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2274): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelOBJ(std::string)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2270): message : while compiling class template member function 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(111): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(44): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2101,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2061): message : while compiling class template member function 'void Model<VertexMesh>::loadModelGLTF(std::string)'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2276): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelGLTF(std::string)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2115,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2129,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   JungleExploration.vcxproj -> D:\Projects\VulkanProject\JungleExploration\x64\Debug\JungleExploration.exe
