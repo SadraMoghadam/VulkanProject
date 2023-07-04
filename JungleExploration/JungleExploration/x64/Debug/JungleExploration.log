@@ -22,21 +22,16 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1797,1
           ]
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1838,1): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2609,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=unsigned int
-          ]
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1993): message : while compiling class template member function 'void Model<VertexMesh>::loadModelOBJ(std::string)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2274): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelOBJ(std::string)' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2270): message : while compiling class template member function 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(111): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(44): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2101,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2061): message : while compiling class template member function 'void Model<VertexMesh>::loadModelGLTF(std::string)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2276): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelGLTF(std::string)' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2115,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2129,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
-  JungleExploration.vcxproj -> D:\Projects\VulkanProject\JungleExploration\x64\Debug\JungleExploration.exe
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(6,6): error C2182: 'GameLogic': illegal use of type 'void'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(6,16): error C2065: 'JungleExploration': undeclared identifier
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(6,35): error C2065: 'A': undeclared identifier
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(6,38): error C2062: type 'float' unexpected
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(7,1): error C2143: syntax error: missing ';' before '{'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(7,1): error C2447: '{': missing function header (old-style formal list?)
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(29,6): error C2182: 'GameLogic': illegal use of type 'void'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(29,6): error C2374: 'GameLogic': redefinition; multiple initialization
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\Logic.hpp(6): message : see declaration of 'GameLogic'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(29,16): error C2065: 'JungleExploration': undeclared identifier
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(29,35): error C2065: 'A': undeclared identifier
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(29,38): error C2062: type 'float' unexpected
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(227,3): error C2064: term does not evaluate to a function taking 4 arguments

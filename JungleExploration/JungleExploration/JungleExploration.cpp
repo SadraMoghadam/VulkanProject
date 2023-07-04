@@ -26,7 +26,7 @@ struct VertexMesh
 	glm::vec2 uv;
 };
 
-//void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
+void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
 
 class JungleExploration : public BaseProject 
 {
@@ -63,7 +63,7 @@ protected:
 		windowHeight = 600;
 		windowTitle = "Jungle Exploration";
     	windowResizable = GLFW_TRUE;
-		initialBackgroundColor = {0.0f, 0.2f, 0.01f, 1.0f};
+		initialBackgroundColor = {0.0f, 0.0f, 0.01f, 1.0f};
 		
 		Ar = (float)windowWidth / (float)windowHeight;
 	}
@@ -74,9 +74,9 @@ protected:
 	
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 2;
-		texturesInPool = 2;
-		setsInPool = 2;
+		uniformBlocksInPool = 10;
+		texturesInPool = 10;
+		setsInPool = 10;
 	}
 
 	void localInit() 
@@ -84,6 +84,10 @@ protected:
 		/* TODO */
 		// Initializing Descriptor Set Layouts
 		DSLToon.init(this, {
+			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
+			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
+			});
+		DSLToonBlinn.init(this, {
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
 			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
 			});
@@ -112,8 +116,8 @@ protected:
 		MGround.init(this, &VMesh, "Models/ground.obj", OBJ);
 
 		// Initializing Textures
-		TCharacter.init(this, "textures/Grass.png");
-		TGround.init(this, "textures/Wood.png");
+		TCharacter.init(this, "textures/Wood.png");
+		TGround.init(this, "textures/Grass.png");
 
 		// Init local variables
 		CamH = 1.0f;
@@ -217,51 +221,31 @@ protected:
 		bool fire = false;
 		// For Getting the inputs
 		getSixAxis(deltaT, m, r, fire);
+		glm::mat4 ViewPrj;
+		glm::mat4 World;
+		
+		GameLogic(this, Ar, ViewPrj, World);
 
-		// Parameters
-		// Camera FOV-y, Near Plane and Far Plane
-		const float FOVy = glm::radians(90.0f);
-		const float nearPlane = 0.1f;
-		const float farPlane = 100.0f;
-		const float rotSpeed = glm::radians(90.0f);
-		const float movSpeed = 3.0f;
 
-		CamH += m.z * movSpeed * deltaT;
-		CamRadius -= m.x * movSpeed * deltaT;
-		CamPitch -= r.x * rotSpeed * deltaT;
-		CamYaw += r.y * rotSpeed * deltaT;
-
-		glm::mat4 Prj = glm::perspective(FOVy, Ar, nearPlane, farPlane);
-		Prj[1][1] *= -1;
-		glm::vec3 camTarget = glm::vec3(0, CamH, 0);
-		glm::vec3 camPos = camTarget +
-			CamRadius * glm::vec3(cos(CamPitch) * sin(CamYaw),
-				sin(CamPitch),
-				cos(CamPitch) * cos(CamYaw));
-		glm::mat4 View = glm::lookAt(camPos, camTarget, glm::vec3(0, 1, 0));
 
 		gubo.DlightDir = glm::normalize(glm::vec3(1, 2, 3));
 		gubo.DlightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		gubo.AmbLightColor = glm::vec3(0.1f);
-		gubo.eyePos = camPos;
+		gubo.eyePos = glm::vec3(100.0, 100.0, 100.0);
 
 		// Writes value to the GPU
 		DSGubo.map(currentImage, &gubo, sizeof(gubo), 0);
-		// the .map() method of a DataSet object, requires the current image of the swap chain as first parameter
-		// the second parameter is the pointer to the C++ data structure to transfer to the GPU
-		// the third parameter is its size
-		// the fourth parameter is the location inside the descriptor set of this uniform block
 
-		glm::mat4 World = glm::mat4(1);
+		//glm::mat4 World = glm::mat4(1);
 		uboCharacter.amb = 1.0f; uboCharacter.gamma = 180.0f; uboCharacter.sColor = glm::vec3(1.0f);
-		uboCharacter.mvpMat = Prj * View * World;
+		uboCharacter.mvpMat = ViewPrj * World;
 		uboCharacter.mMat = World;
 		uboCharacter.nMat = glm::inverse(glm::transpose(World));
 		DSCharacter.map(currentImage, &uboCharacter, sizeof(uboCharacter), 0);
 
-		World = glm::mat4(1);
+		World = glm::scale(glm::mat4(1),glm::vec3(10));
 		uboGround.amb = 1.0f; uboGround.gamma = 180.0f; uboGround.sColor = glm::vec3(1.0f);
-		uboGround.mvpMat = Prj * View * World;
+		uboGround.mvpMat = ViewPrj * World;
 		uboGround.mMat = World;
 		uboGround.nMat = glm::inverse(glm::transpose(World));
 		DSGround.map(currentImage, &uboGround, sizeof(uboGround), 0);
