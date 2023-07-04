@@ -1,5 +1,4 @@
 #include "Starter.hpp"
-#include "Logic.hpp"
 
 
 struct UniformBufferObject {
@@ -26,7 +25,7 @@ struct VertexMesh
 	glm::vec2 uv;
 };
 
-void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
+//void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
 
 class JungleExploration : public BaseProject 
 {
@@ -243,15 +242,86 @@ protected:
 		uboCharacter.nMat = glm::inverse(glm::transpose(World));
 		DSCharacter.map(currentImage, &uboCharacter, sizeof(uboCharacter), 0);
 
-		World = glm::scale(glm::mat4(1),glm::vec3(10));
+		//World = glm::scale(glm::mat4(1),glm::vec3(10));
 		uboGround.amb = 1.0f; uboGround.gamma = 180.0f; uboGround.sColor = glm::vec3(1.0f);
 		uboGround.mvpMat = ViewPrj * World;
 		uboGround.mMat = World;
 		uboGround.nMat = glm::inverse(glm::transpose(World));
 		DSGround.map(currentImage, &uboGround, sizeof(uboGround), 0);
 	}	
+
+
+
+	float yaw = 0, pitch = 0, roll = 0;
+	glm::quat rot = glm::quat(1, 0, 0, 0);
+
+	glm::mat4 ViewPrjOld = glm::mat4(1);
+
+
+	void GameLogic(JungleExploration* JE, float Ar, glm::mat4& ViewPrj, glm::mat4& World)
+	{
+		const float FOVy = glm::radians(45.0f);
+		const float nearPlane = 0.1f;
+		const float farPlane = 100.f;
+
+		// Player starting point
+		const glm::vec3 StartingPosition = glm::vec3(-41.50, 0.0, -19.5);
+
+		// Camera target height and distance
+		const float camHeight = 0.25;
+		const float camDist = 1.5;
+		// Camera Pitch limits
+		const float minPitch = glm::radians(-8.75f);
+		const float maxPitch = glm::radians(60.0f);
+		// Rotation and motion speed
+		const float ROT_SPEED = glm::radians(120.0f);
+		const float MOVE_SPEED = 2.0f;
+
+		float deltaT;
+		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
+		bool fire = false;
+		JE->getSixAxis(deltaT, m, r, fire);
+
+		static glm::vec3 Pos = StartingPosition;
+
+		glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
+		glm::vec3 uy = glm::vec3(0, 1, 0);
+		glm::vec3 uz = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1));
+		pitch += ROT_SPEED * r.x * deltaT;
+		yaw += ROT_SPEED * r.y * deltaT;
+		roll += ROT_SPEED * r.z * deltaT;
+		Pos += ux * MOVE_SPEED * m.x * deltaT;
+		Pos += uy * MOVE_SPEED * m.y * deltaT;
+		Pos += uz * MOVE_SPEED * m.z * deltaT;
+		glm::mat4 T = glm::translate(glm::mat4(1.0), Pos);
+		if (pitch <= minPitch)
+			pitch = minPitch;
+		else if (pitch >= maxPitch)
+			pitch = maxPitch;
+		glm::mat4 Rx = glm::rotate(glm::mat4(1.0), pitch, glm::vec3(1, 0, 0));
+		glm::mat4 Ry = glm::rotate(glm::mat4(1.0), yaw, glm::vec3(0, 1, 0));
+		glm::mat4 Rz = glm::rotate(glm::mat4(1.0), roll, glm::vec3(0, 0, 1));
+		World = T * Ry;
+
+		glm::vec3 c = glm::vec3(World * glm::vec4(0, camHeight + (camDist * sin(pitch)), camDist * cos(pitch), 1));
+		glm::vec3 a = glm::vec3(World * glm::vec4(0, 0, 0, 1.0f)) + glm::vec3(0, camHeight, 0);
+		glm::mat4 Mv = glm::lookAt(c, a, glm::vec3(0, 1, 0));
+		glm::mat4 Mp = glm::perspective(FOVy, Ar, nearPlane, farPlane);
+		Mp[1][1] *= -1;
+		ViewPrj = Mp * Mv;
+
+		// DAMPING
+		float lambda = 10;
+		if (ViewPrjOld == glm::mat4(1))
+			ViewPrjOld = ViewPrj;
+		ViewPrj = ViewPrjOld * exp(-lambda * deltaT) + ViewPrj * (1 - exp(-lambda * deltaT));
+		ViewPrjOld = ViewPrj;
+	}
 };
 
+
+
+//#include "Logic.hpp"
 
 // This is the main: probably you do not need to touch this!
 int main() {
