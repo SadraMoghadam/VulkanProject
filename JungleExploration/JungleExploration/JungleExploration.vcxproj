@@ -158,9 +158,8 @@
     <ClCompile Include="JungleExploration.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Logic.hpp" />
     <ClInclude Include="Starter.hpp" />
-    <ClInclude Include="Window.hpp" />
+    <ClInclude Include="TextMaker.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -22,6 +22,12 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1797,1
           ]
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1838,1): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2609,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(9,483): warning C4305: 'initializing': truncation from 'double' to 'const float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(100,1): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(109,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(110,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(111,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(112,1): warning C4305: 'initializing': truncation from 'double' to 'float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
           with
           [
@@ -30,7 +36,7 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1993): message : while compiling class template member function 'void Model<VertexMesh>::loadModelOBJ(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2274): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelOBJ(std::string)' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2270): message : while compiling class template member function 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(114): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(120): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(43): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2101,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2061): message : while compiling class template member function 'void Model<VertexMesh>::loadModelGLTF(std::string)'

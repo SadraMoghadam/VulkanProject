@@ -23,10 +23,7 @@
     <ClInclude Include="Starter.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="Window.hpp">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Logic.hpp">
+    <ClInclude Include="TextMaker.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,5 +1,5 @@
 #include "Starter.hpp"
-
+#include "TextMaker.hpp"
 
 struct UniformBufferObject {
 	alignas(4) float amb;
@@ -53,8 +53,14 @@ protected:
 	GlobalUniformBufferObject gubo;
 
 	// Other Parameters
+	int currentScene = 1;
 	float Ar;
-	float CamH, CamRadius, CamPitch, CamYaw;
+	float yaw = 0, pitch = .3f, roll = 0;
+	glm::mat4 World, ViewPrj, GWorld, ViewPrjOld;
+	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
+	float camAlpha = 0.0f, camBeta = 0.0f;
+	std::list<glm::vec2> collisionPositions;
+	float collisionThreshold = 0.5f;
 
 	void setWindowParameters() 
 	{
@@ -73,9 +79,9 @@ protected:
 	
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 10;
-		texturesInPool = 10;
-		setsInPool = 10;
+		uniformBlocksInPool = 3;
+		texturesInPool = 2;
+		setsInPool = 3;
 	}
 
 	void localInit() 
@@ -117,12 +123,8 @@ protected:
 		// Initializing Textures
 		TCharacter.init(this, "textures/Wood.png");
 		TGround.init(this, "textures/Grass.png");
-
 		// Init local variables
-		CamH = 1.0f;
-		CamRadius = 3.0f;
-		CamPitch = glm::radians(15.f);
-		CamYaw = glm::radians(30.f);
+		CalculateCollisionPositions();
 	}
 	
 	void pipelinesAndDescriptorSetsInit() 
@@ -144,6 +146,7 @@ protected:
 		DSGubo.init(this, &DSLGubo, {
 					{0, UNIFORM, sizeof(GlobalUniformBufferObject), nullptr}
 			});
+
 	}
 
 	void pipelinesAndDescriptorSetsCleanup() 
@@ -209,63 +212,60 @@ protected:
 	void updateUniformBuffer(uint32_t currentImage) 
 	{
 		/* TODO */
+		static bool debounce = false;
+		static int curDebounce = 0;
+
 		// Standard procedure to quit when the ESC key is pressed
 		if (glfwGetKey(window, GLFW_KEY_ESCAPE)) {
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
-		// Integration with the timers and the controllers
-		float deltaT;
-		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
-		bool fire = false;
-		// For Getting the inputs
-		getSixAxis(deltaT, m, r, fire);
-		glm::mat4 ViewPrj;
-		glm::mat4 World;
-		
-		GameLogic(this, Ar, ViewPrj, World);
+		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+			if (!debounce) {
+				debounce = true;
+				curDebounce = GLFW_KEY_SPACE;
+				currentScene = (currentScene + 1) % 2;
+				std::cout << "Scene : " << currentScene << "\n";
+				RebuildPipeline();
+			}
+		}
+		else {
+			if ((curDebounce == GLFW_KEY_SPACE) && debounce) {
+				debounce = false;
+				curDebounce = 0;
+			}
+		}
 
+		switch (currentScene)
+		{
+		case 0:
+			Spectate();
+			break;
+		case 1:
+			PlayerMovement();
+		}
 
-
-		gubo.DlightDir = glm::normalize(glm::vec3(1, 2, 3));
+		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
 		gubo.DlightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		gubo.AmbLightColor = glm::vec3(0.1f);
 		gubo.eyePos = glm::vec3(100.0, 100.0, 100.0);
 
-		// Writes value to the GPU
 		DSGubo.map(currentImage, &gubo, sizeof(gubo), 0);
 
-		//glm::mat4 World = glm::mat4(1);
-		uboCharacter.amb = 1.0f; uboCharacter.gamma = 180.0f; uboCharacter.sColor = glm::vec3(1.0f);
-		uboCharacter.mvpMat = ViewPrj * World;
-		uboCharacter.mMat = World;
-		uboCharacter.nMat = glm::inverse(glm::transpose(World));
-		DSCharacter.map(currentImage, &uboCharacter, sizeof(uboCharacter), 0);
-
-		//World = glm::scale(glm::mat4(1),glm::vec3(10));
-		uboGround.amb = 1.0f; uboGround.gamma = 180.0f; uboGround.sColor = glm::vec3(1.0f);
-		uboGround.mvpMat = ViewPrj * World;
-		uboGround.mMat = World;
-		uboGround.nMat = glm::inverse(glm::transpose(World));
-		DSGround.map(currentImage, &uboGround, sizeof(uboGround), 0);
+		RenderCharacter(currentImage);
+		RenderEnvironment(currentImage);		
 	}	
 
 
 
-	float yaw = 0, pitch = 0, roll = 0;
-	glm::quat rot = glm::quat(1, 0, 0, 0);
-
-	glm::mat4 ViewPrjOld = glm::mat4(1);
-
-
-	void GameLogic(JungleExploration* JE, float Ar, glm::mat4& ViewPrj, glm::mat4& World)
+	void PlayerMovement()
 	{
 		const float FOVy = glm::radians(45.0f);
 		const float nearPlane = 0.1f;
 		const float farPlane = 100.f;
 
 		// Player starting point
-		const glm::vec3 StartingPosition = glm::vec3(-41.50, 0.0, -19.5);
+		const glm::vec3 startingPosition = glm::vec3(0.0, 0.0, 0.0);
 
 		// Camera target height and distance
 		const float camHeight = 0.25;
@@ -280,20 +280,50 @@ protected:
 		float deltaT;
 		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
 		bool fire = false;
-		JE->getSixAxis(deltaT, m, r, fire);
+		getSixAxis(deltaT, m, r, fire);
 
-		static glm::vec3 Pos = StartingPosition;
+		static glm::vec3 pos = startingPosition;
+		glm::vec3 nextPos = pos;
 
 		glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
 		glm::vec3 uy = glm::vec3(0, 1, 0);
 		glm::vec3 uz = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1));
 		pitch += ROT_SPEED * r.x * deltaT;
-		yaw += ROT_SPEED * r.y * deltaT;
+		yaw += ROT_SPEED * -r.y * deltaT;
 		roll += ROT_SPEED * r.z * deltaT;
-		Pos += ux * MOVE_SPEED * m.x * deltaT;
-		Pos += uy * MOVE_SPEED * m.y * deltaT;
-		Pos += uz * MOVE_SPEED * m.z * deltaT;
-		glm::mat4 T = glm::translate(glm::mat4(1.0), Pos);
+
+		glm::vec2 cp = { 10, 10 }; // CollisionPosition
+		nextPos += ux * MOVE_SPEED * m.x * deltaT;
+		nextPos += uz * MOVE_SPEED * m.z * deltaT;
+		bool xCollision = nextPos.x < cp.x + collisionThreshold && nextPos.x > cp.x - collisionThreshold;
+		bool yCollision = nextPos.z < cp.y + collisionThreshold && nextPos.z > cp.y - collisionThreshold;
+		if (!(xCollision && yCollision))
+		{
+			pos += ux * MOVE_SPEED * m.x * deltaT;
+			pos += uy * MOVE_SPEED * m.y * deltaT;
+			pos += uz * MOVE_SPEED * m.z * deltaT;
+		}
+		//if (nextPos.x < cp.x + collisionThreshold && nextPos.x > cp.x - collisionThreshold)
+		//{
+		//	pos.x = cp.x - collisionThreshold;
+		//}
+		//if (nextPos.z < cp.y + collisionThreshold && nextPos.z > cp.y - collisionThreshold)
+		//{
+		//	pos.z = cp.y - collisionThreshold;
+		//}
+		//pos += ux * MOVE_SPEED * m.x * deltaT;
+		//pos += uy * MOVE_SPEED * m.y * deltaT;
+		//pos += uz * MOVE_SPEED * m.z * deltaT;
+		//if (pos.x < cp.x + collisionThreshold && pos.x > cp.x - collisionThreshold) 
+		//{
+		//	pos.x = cp.x - collisionThreshold;
+		//}
+		//if (pos.z < cp.y + collisionThreshold && pos.z > cp.y - collisionThreshold)
+		//{
+		//	pos.z = cp.y - collisionThreshold;
+		//}
+		std::cout << pos.x << "-";
+		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 		if (pitch <= minPitch)
 			pitch = minPitch;
 		else if (pitch >= maxPitch)
@@ -311,19 +341,85 @@ protected:
 		ViewPrj = Mp * Mv;
 
 		// DAMPING
-		float lambda = 10;
+		float lambda = 7;
 		if (ViewPrjOld == glm::mat4(1))
 			ViewPrjOld = ViewPrj;
 		ViewPrj = ViewPrjOld * exp(-lambda * deltaT) + ViewPrj * (1 - exp(-lambda * deltaT));
 		ViewPrjOld = ViewPrj;
 	}
+
+	void CalculateCollisionPositions()
+	{
+		collisionPositions.push_back({ -10, -10 });
+	}
+
+	void Spectate()
+	{
+		const float ROT_SPEED = glm::radians(120.0f);
+		const float MOVE_SPEED = 10.0f;
+
+		float deltaT;
+		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
+		bool fire = false;
+		getSixAxis(deltaT, m, r, fire);
+
+		camAlpha = camAlpha - ROT_SPEED * deltaT * r.y;
+		camBeta = camBeta - ROT_SPEED * deltaT * r.x;
+		camBeta = camBeta < glm::radians(-90.0f) ? glm::radians(-90.0f) :
+			(camBeta > glm::radians(90.0f) ? glm::radians(90.0f) : camBeta);
+
+		glm::vec3 ux = glm::rotate(glm::mat4(1.0f), camAlpha, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1);
+		glm::vec3 uz = glm::rotate(glm::mat4(1.0f), camAlpha, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1);
+		camPos = camPos + MOVE_SPEED * m.x * ux * deltaT;
+		camPos = camPos + MOVE_SPEED * m.y * glm::vec3(0, 1, 0) * deltaT;
+		camPos = camPos + MOVE_SPEED * m.z * uz * deltaT;
+
+		glm::mat4 M = glm::perspective(glm::radians(45.0f), Ar, 0.1f, 50.0f);
+		M[1][1] *= -1;
+
+		glm::mat4 Mv = glm::rotate(glm::mat4(1.0), -camBeta, glm::vec3(1, 0, 0)) *
+			glm::rotate(glm::mat4(1.0), -camAlpha, glm::vec3(0, 1, 0)) *
+			glm::translate(glm::mat4(1.0), -camPos);
+
+		ViewPrj = M * Mv;
+	}
+
+	void RenderCharacter(uint32_t currentImage)
+	{
+		glm::mat4 coefficient = currentScene == 0 ? glm::mat4(1) : World;
+		GWorld = coefficient * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
+		uboCharacter.amb = 1.0f; uboCharacter.gamma = 180.0f; uboCharacter.sColor = glm::vec3(1.0f);
+		uboCharacter.mvpMat = ViewPrj * GWorld;
+		uboCharacter.mMat = GWorld;
+		uboCharacter.nMat = glm::inverse(glm::transpose(GWorld));
+		DSCharacter.map(currentImage, &uboCharacter, sizeof(uboCharacter), 0);
+	}
+
+	void RenderEnvironment(uint32_t currentImage)
+	{
+		GWorld = glm::translate(glm::scale(glm::mat4(1), glm::vec3(10)), glm::vec3(0, 0, 0));
+		uboGround.amb = 1.0f; uboGround.gamma = 180.0f; uboGround.sColor = glm::vec3(1.0f);
+		uboGround.mvpMat = ViewPrj * GWorld;
+		uboGround.mMat = GWorld;
+		uboGround.nMat = glm::inverse(glm::transpose(GWorld));
+		DSGround.map(currentImage, &uboGround, sizeof(uboGround), 0);
+
+		RenderFlowers(currentImage);
+		RenderTrees(currentImage);
+		RenderRocks(currentImage);
+		RenderItems(currentImage);
+	}
+
+	void RenderFlowers(uint32_t currentImage) {}
+
+	void RenderTrees(uint32_t currentImage) {}
+
+	void RenderRocks(uint32_t currentImage) {}
+
+	void RenderItems(uint32_t currentImage) {}
 };
 
 
-
-//#include "Logic.hpp"
-
-// This is the main: probably you do not need to touch this!
 int main() {
 	JungleExploration app;
 
