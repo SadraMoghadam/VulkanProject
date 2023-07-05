@@ -10,7 +10,7 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 nMat;
 };
 
-struct GlobalUniformBufferObject 
+struct GlobalUniformBufferObject
 {
 	alignas(16) glm::vec3 DlightDir;
 	alignas(16) glm::vec3 DlightColor;
@@ -27,13 +27,15 @@ struct VertexMesh
 
 //void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
 
-class JungleExploration : public BaseProject 
+class JungleExploration : public BaseProject
 {
 protected:
 	// Constant Parameters
-	static const int mapSize = 20;
-	const float collisionThreshold = 0.5f; // we can have multiple threshold for multiple objects
+	static const int mapSize = 50;
 	static const int numOfPlants = 200;
+	static const int numOfFlowers = 200;
+	static const int numOfMountains = 7 * 4;
+	static const int numOfCollisions = 0;
 
 	// Descriptor Set Layouts
 	DescriptorSetLayout DSLGubo, DSLToon, DSLToonBlinn;
@@ -45,16 +47,16 @@ protected:
 	Pipeline PToon, PToonBlinn;
 
 	// Models
-	Model<VertexMesh> MCharacter, MGround, MPlant;
+	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain;
 
 	// Textures
-	Texture TCharacter, TGround, TPlant;
+	Texture TCharacter, TGround, TPlant, TFlower, TMountain;
 
 	// Descriptor sets
-	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants];
+	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], DSMountain[numOfMountains];
 
 	// Uniform Blocks
-	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants];
+	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], uboMountain[numOfMountains];
 	GlobalUniformBufferObject gubo;
 
 	// Other Parameters
@@ -65,37 +67,46 @@ protected:
 	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
 	float camAlpha = 0.0f, camBeta = 0.0f;
 	// Environment Parameters
-	std::list<glm::vec2> collisionPositions;
 	float randX, randY, randRot;
 	glm::vec2 groundPositions[4] = { {-1, -1}, {-1, 0}, {0, -1}, {0, 0} };
 	glm::vec2 plantPositions[numOfPlants];
 	float plantRotations[numOfPlants];
+	glm::vec2 flowerPositions[numOfFlowers];
+	float flowerRotations[numOfFlowers];
+	glm::vec2 mountainPositions[numOfMountains];
+	float mountainRotations[numOfMountains];
+	float mountainScales[numOfMountains];
+	// Collision Parameters
+	bool xCollision = false, yCollision = false, isCollision = false;
+	int thresholdIndex = 0;
+	float mountainThreshold = 7.8f;
+	float mountainThresholdCoefficient = 10;
+	std::tuple<glm::vec2, float> collisionsInfo[numOfCollisions];
 
 
-
-	void setWindowParameters() 
+	void setWindowParameters()
 	{
 		windowWidth = 800;
 		windowHeight = 600;
 		windowTitle = "Jungle Exploration";
-    	windowResizable = GLFW_TRUE;
-		initialBackgroundColor = {0.0f, 0.0f, 0.01f, 1.0f};
-		
+		windowResizable = GLFW_TRUE;
+		initialBackgroundColor = { 0.0f, 0.0f, 0.01f, 1.0f };
+
 		Ar = (float)windowWidth / (float)windowHeight;
 	}
 
 	void onWindowResize(int w, int h) {
 		Ar = (float)w / (float)h;
 	}
-	
+
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2;
-		texturesInPool = 3;
-		setsInPool = 2 + 4 * 2 + numOfPlants * 2;
+		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2;
+		texturesInPool = 4;
+		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2;
 	}
 
-	void localInit() 
+	void localInit()
 	{
 		/* TODO */
 		// Initializing Descriptor Set Layouts
@@ -131,17 +142,20 @@ protected:
 		MCharacter.init(this, &VMesh, "Models/character.obj", OBJ);
 		MGround.init(this, &VMesh, "Models/ground.obj", OBJ);
 		MPlant.init(this, &VMesh, "Models/plant.obj", OBJ);
+		MFlower.init(this, &VMesh, "Models/flower.obj", OBJ);
+		MMountain.init(this, &VMesh, "Models/mountain.obj", OBJ);
 
 		// Initializing Textures
 		TCharacter.init(this, "textures/Wood.png");
 		TGround.init(this, "textures/Ground.png");
-		TPlant.init(this, "textures/Plant.png");
+		TPlant.init(this, "textures/Texture_01.jpg");
+		TFlower.init(this, "textures/Texture_01.jpg");
+		TMountain.init(this, "textures/Terrain-Texture_2.png");
 		// Init local variables
-		CalculateCollisionPositions();
 		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
-	
-	void pipelinesAndDescriptorSetsInit() 
+
+	void pipelinesAndDescriptorSetsInit()
 	{
 		/* TODO */
 		// Creating Pipelines
@@ -163,17 +177,31 @@ protected:
 						{1, TEXTURE, 0, &TGround}
 				});
 		}
-		for (int i = 0; i < numOfPlants; i++) 
+		for (int i = 0; i < numOfPlants; i++)
 		{
 			DSPlant[i].init(this, &DSLToon, {
 					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 					{1, TEXTURE, 0, &TPlant},
 				});
 		}
+		for (int i = 0; i < numOfFlowers; i++)
+		{
+			DSFlower[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TFlower},
+				});
+		}
+		for (int i = 0; i < numOfMountains; i++)
+		{
+			DSMountain[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TMountain},
+				});
+		}
 
 	}
 
-	void pipelinesAndDescriptorSetsCleanup() 
+	void pipelinesAndDescriptorSetsCleanup()
 	{
 		/* TODO */
 		// Cleanup Pipelines
@@ -189,20 +217,28 @@ protected:
 		}
 		for (int i = 0; i < numOfPlants; i++)
 			DSPlant[i].cleanup();
+		for (int i = 0; i < numOfFlowers; i++)
+			DSFlower[i].cleanup();
+		for (int i = 0; i < numOfMountains; i++)
+			DSMountain[i].cleanup();
 	}
-	
-	void localCleanup() 
+
+	void localCleanup()
 	{
 		/* TODO */
 		// Cleanup Textures
 		TCharacter.cleanup();
 		TGround.cleanup();
 		TPlant.cleanup();
+		TFlower.cleanup();
+		TMountain.cleanup();
 
 		// Cleanup Models
 		MCharacter.cleanup();
 		MGround.cleanup();
 		MPlant.cleanup();
+		MFlower.cleanup();
+		MMountain.cleanup();
 
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
@@ -213,8 +249,8 @@ protected:
 		PToon.destroy();
 		PToonBlinn.destroy();
 	}
-	
-	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage) 
+
+	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage)
 	{
 		/* TODO */
 		// Set Gubo
@@ -238,6 +274,20 @@ protected:
 				static_cast<uint32_t>(MPlant.indices.size()), 1, 0, 0, 0);
 		}
 
+		MFlower.bind(commandBuffer);
+		for (int i = 0; i < numOfFlowers; i++) {
+			DSFlower[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MFlower.indices.size()), 1, 0, 0, 0);
+		}
+
+		MMountain.bind(commandBuffer);
+		for (int i = 0; i < numOfMountains; i++) {
+			DSMountain[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MMountain.indices.size()), 1, 0, 0, 0);
+		}
+
 
 		// Ground
 		PToonBlinn.bind(commandBuffer);
@@ -250,7 +300,7 @@ protected:
 		}
 	}
 
-	void updateUniformBuffer(uint32_t currentImage) 
+	void updateUniformBuffer(uint32_t currentImage)
 	{
 		/* TODO */
 		static bool debounce = false;
@@ -294,14 +344,14 @@ protected:
 		DSGubo.map(currentImage, &gubo, sizeof(gubo), 0);
 
 		RenderCharacter(currentImage);
-		RenderEnvironment(currentImage);		
-	}	
+		RenderEnvironment(currentImage);
+	}
 
 	void PlayerMovement()
 	{
 		const float FOVy = glm::radians(45.0f);
 		const float nearPlane = 0.1f;
-		const float farPlane = 100.f;
+		const float farPlane = 1000.f;
 
 		// Player starting point
 		const glm::vec3 startingPosition = glm::vec3(0.0, 0.0, 0.0);
@@ -314,7 +364,7 @@ protected:
 		const float maxPitch = glm::radians(60.0f);
 		// Rotation and motion speed
 		const float ROT_SPEED = glm::radians(120.0f);
-		const float MOVE_SPEED = 2.0f;
+		const float MOVE_SPEED = 5.0f;
 
 		float deltaT;
 		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
@@ -334,14 +384,16 @@ protected:
 		glm::vec2 cp = { 5, 5 }; // CollisionPosition
 		nextPos += ux * MOVE_SPEED * m.x * deltaT;
 		nextPos += uz * MOVE_SPEED * m.z * deltaT;
-		bool xCollision = nextPos.x < cp.x + collisionThreshold && nextPos.x > cp.x - collisionThreshold;
-		bool yCollision = nextPos.z < cp.y + collisionThreshold && nextPos.z > cp.y - collisionThreshold;
-		if (!(xCollision && yCollision))
+
+		MapBorderCollisionHandler(pos, nextPos);
+		CollisionChecker(nextPos);
+		if (!isCollision)
 		{
 			pos += ux * MOVE_SPEED * m.x * deltaT;
 			pos += uy * MOVE_SPEED * m.y * deltaT;
 			pos += uz * MOVE_SPEED * m.z * deltaT;
 		}
+		isCollision = false;
 		//if (nextPos.x < cp.x + collisionThreshold && nextPos.x > cp.x - collisionThreshold)
 		//{
 		//	pos.x = cp.x - collisionThreshold;
@@ -361,7 +413,7 @@ protected:
 		//{
 		//	pos.z = cp.y - collisionThreshold;
 		//}
-		std::cout << pos.x << "-";
+		//std::cout << pos.x << "-";
 		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 		if (pitch <= minPitch)
 			pitch = minPitch;
@@ -388,10 +440,45 @@ protected:
 	}
 
 
-
-	void CalculateCollisionPositions()
+	void MapBorderCollisionHandler(glm::vec3 &pos, glm::vec3 &nextPos)
 	{
-		collisionPositions.push_back({ -10, -10 });
+		if (nextPos.x < -mapSize / 2 + mountainThreshold)
+		{
+			pos.x = -mapSize / 2 + mountainThreshold;
+		}
+		else if (nextPos.x > mapSize / 2 - mountainThreshold)
+		{
+			pos.x = mapSize / 2 - mountainThreshold;
+		}
+		if (nextPos.z < -mapSize / 2 + mountainThreshold)
+		{
+			pos.z = -mapSize / 2 + mountainThreshold;
+		}
+		else if (nextPos.z > mapSize / 2 - mountainThreshold)
+		{
+			pos.z = mapSize / 2 - mountainThreshold;
+		}
+	}
+
+	void CollisionChecker(glm::vec3 nextPos)
+	{
+		for (int i = 0; i < numOfCollisions; i++)
+		{
+			//std::cout << std::get<1>(collisionsInfo[i]) << "-" << std::get<0>(collisionsInfo[i]).x << " && ";
+			xCollision = nextPos.x < std::get<0>(collisionsInfo[i]).x + std::get<1>(collisionsInfo[i]) && nextPos.x > std::get<0>(collisionsInfo[i]).x - std::get<1>(collisionsInfo[i]);
+			yCollision = nextPos.z < std::get<0>(collisionsInfo[i]).y + std::get<1>(collisionsInfo[i]) && nextPos.z > std::get<0>(collisionsInfo[i]).y - std::get<1>(collisionsInfo[i]);
+			if (xCollision && yCollision)
+			{
+				isCollision = true;
+				break;
+			}
+		}
+	}
+
+	void AddCollisionPoint(glm::vec2 position, float threshold)
+	{
+		std::tuple<glm::vec2, float> collisionInfo(position, threshold);
+		collisionsInfo[thresholdIndex++] = collisionInfo;
 	}
 
 	void Spectate()
@@ -440,6 +527,8 @@ protected:
 	{
 		RenderGround(currentImage);
 		RenderPlants(currentImage);
+		RenderFlowers(currentImage);
+		RenderMountains(currentImage);
 		RenderTrees(currentImage);
 		RenderRocks(currentImage);
 		RenderItems(currentImage);
@@ -458,7 +547,7 @@ protected:
 		}
 	}
 
-	void RenderPlants(uint32_t currentImage) 
+	void RenderPlants(uint32_t currentImage)
 	{
 		for (int i = 0; i < numOfPlants; i++)
 		{
@@ -471,6 +560,32 @@ protected:
 		}
 	}
 
+	void RenderFlowers(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfFlowers; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(flowerPositions[i].x, 0, flowerPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(flowerRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
+			uboFlower[i].amb = .7f; uboFlower[i].gamma = 180.0f; uboFlower[i].sColor = glm::vec3(1.0f);
+			uboFlower[i].mvpMat = ViewPrj * GWorld;
+			uboFlower[i].mMat = GWorld;
+			uboFlower[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSFlower[i].map(currentImage, &uboFlower[i], sizeof(uboFlower[i]), 0);
+		}
+	}
+
+	void RenderMountains(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfMountains; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(mountainPositions[i].x, 0, mountainPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(mountainRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(mountainScales[i] * mapSize / 20));
+			uboMountain[i].amb = 1.0f; uboMountain[i].gamma = 180.0f; uboMountain[i].sColor = glm::vec3(1.0f);
+			uboMountain[i].mvpMat = ViewPrj * GWorld;
+			uboMountain[i].mMat = GWorld;
+			uboMountain[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSMountain[i].map(currentImage, &uboMountain[i], sizeof(uboMountain[i]), 0);
+		}
+	}
+
 	void RenderTrees(uint32_t currentImage) {}
 
 	void RenderRocks(uint32_t currentImage) {}
@@ -479,6 +594,7 @@ protected:
 
 	void CalculateEnvironmentObjectsPositionsAndRotations()
 	{
+		srand(time(0));
 		// Plants
 		for (int i = 0; i < numOfPlants; i++)
 		{
@@ -488,6 +604,36 @@ protected:
 			plantPositions[i] = { randX, randY };
 			plantRotations[i] = randRot;
 		}
+
+		// Flowers
+		for (int i = 0; i < numOfFlowers; i++)
+		{
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			flowerPositions[i] = { randX, randY };
+			flowerRotations[i] = randRot;
+		}
+
+		// Mountains
+		for (int i = 0; i < numOfMountains; i++)
+		{
+			mountainScales[i] = (float)rand() / RAND_MAX / 6 + 0.15;
+			mountainRotations[i] = rand() % (360 + 1);
+		}
+		for (int i = 0; i < numOfMountains / 4; i++)
+		{
+			int mountainsPerSide = numOfMountains / 4;
+			mountainPositions[i] = { -mapSize / 2 + i * mapSize / mountainsPerSide + 2, -mapSize / 2 };
+			mountainPositions[i + 1 * numOfMountains / 4] = { -mapSize / 2, -mapSize / 2 + i * mapSize / mountainsPerSide + 2 };
+			mountainPositions[i + 2 * numOfMountains / 4] = { -mapSize / 2 + i * mapSize / mountainsPerSide + 2, mapSize / 2 };
+			mountainPositions[i + 3 * numOfMountains / 4] = { mapSize / 2, -mapSize / 2 + i * mapSize / mountainsPerSide + 2 };
+
+			//AddCollisionPoint(mountainPositions[i], mountainThreshold + (mountainScales[i] - .15f) * mountainThresholdCoefficient);
+			//AddCollisionPoint(mountainPositions[i + 1 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
+			//AddCollisionPoint(mountainPositions[i + 2 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
+			//AddCollisionPoint(mountainPositions[i + 3 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
+		}
 	}
 };
 
@@ -495,12 +641,13 @@ protected:
 int main() {
 	JungleExploration app;
 
-    try {
-        app.run();
-    } catch (const std::exception& e) {
-        std::cerr << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
+	try {
+		app.run();
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		return EXIT_FAILURE;
+	}
 
-    return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }
