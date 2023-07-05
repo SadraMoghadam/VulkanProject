@@ -30,6 +30,11 @@ struct VertexMesh
 class JungleExploration : public BaseProject 
 {
 protected:
+	// Constant Parameters
+	static const int mapSize = 20;
+	const float collisionThreshold = 0.5f; // we can have multiple threshold for multiple objects
+	static const int numOfPlants = 200;
+
 	// Descriptor Set Layouts
 	DescriptorSetLayout DSLGubo, DSLToon, DSLToonBlinn;
 
@@ -40,16 +45,16 @@ protected:
 	Pipeline PToon, PToonBlinn;
 
 	// Models
-	Model<VertexMesh> MCharacter, MGround;
+	Model<VertexMesh> MCharacter, MGround, MPlant;
 
 	// Textures
-	Texture TCharacter, TGround;
+	Texture TCharacter, TGround, TPlant;
 
 	// Descriptor sets
-	DescriptorSet DSGubo, DSCharacter, DSGround;
+	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants];
 
 	// Uniform Blocks
-	UniformBufferObject uboCharacter, uboGround;
+	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants];
 	GlobalUniformBufferObject gubo;
 
 	// Other Parameters
@@ -59,8 +64,14 @@ protected:
 	glm::mat4 World, ViewPrj, GWorld, ViewPrjOld;
 	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
 	float camAlpha = 0.0f, camBeta = 0.0f;
+	// Environment Parameters
 	std::list<glm::vec2> collisionPositions;
-	float collisionThreshold = 0.5f;
+	float randX, randY, randRot;
+	glm::vec2 groundPositions[4] = { {-1, -1}, {-1, 0}, {0, -1}, {0, 0} };
+	glm::vec2 plantPositions[numOfPlants];
+	float plantRotations[numOfPlants];
+
+
 
 	void setWindowParameters() 
 	{
@@ -79,9 +90,9 @@ protected:
 	
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 3;
-		texturesInPool = 2;
-		setsInPool = 3;
+		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2;
+		texturesInPool = 3;
+		setsInPool = 2 + 4 * 2 + numOfPlants * 2;
 	}
 
 	void localInit() 
@@ -119,12 +130,15 @@ protected:
 		// Initializing Models
 		MCharacter.init(this, &VMesh, "Models/character.obj", OBJ);
 		MGround.init(this, &VMesh, "Models/ground.obj", OBJ);
+		MPlant.init(this, &VMesh, "Models/plant.obj", OBJ);
 
 		// Initializing Textures
 		TCharacter.init(this, "textures/Wood.png");
-		TGround.init(this, "textures/Grass.png");
+		TGround.init(this, "textures/Ground.png");
+		TPlant.init(this, "textures/Plant.png");
 		// Init local variables
 		CalculateCollisionPositions();
+		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
 	
 	void pipelinesAndDescriptorSetsInit() 
@@ -135,17 +149,27 @@ protected:
 		PToonBlinn.create();
 
 		// Defining the Descriptor Sets
+		DSGubo.init(this, &DSLGubo, {
+					{0, UNIFORM, sizeof(GlobalUniformBufferObject), nullptr}
+			});
 		DSCharacter.init(this, &DSLToon, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &TCharacter}
 			});
-		DSGround.init(this, &DSLToonBlinn, {
+		for (int i = 0; i < 4; i++)
+		{
+			DSGround[i].init(this, &DSLToonBlinn, {
+						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+						{1, TEXTURE, 0, &TGround}
+				});
+		}
+		for (int i = 0; i < numOfPlants; i++) 
+		{
+			DSPlant[i].init(this, &DSLToon, {
 					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
-					{1, TEXTURE, 0, &TGround}
-			});
-		DSGubo.init(this, &DSLGubo, {
-					{0, UNIFORM, sizeof(GlobalUniformBufferObject), nullptr}
-			});
+					{1, TEXTURE, 0, &TPlant},
+				});
+		}
 
 	}
 
@@ -157,9 +181,14 @@ protected:
 		PToonBlinn.cleanup();
 
 		// Cleanup Descriptor Sets
-		DSCharacter.cleanup();
-		DSGround.cleanup();
 		DSGubo.cleanup();
+		DSCharacter.cleanup();
+		for (int i = 0; i < 4; i++)
+		{
+			DSGround[i].cleanup();
+		}
+		for (int i = 0; i < numOfPlants; i++)
+			DSPlant[i].cleanup();
 	}
 	
 	void localCleanup() 
@@ -168,10 +197,12 @@ protected:
 		// Cleanup Textures
 		TCharacter.cleanup();
 		TGround.cleanup();
+		TPlant.cleanup();
 
 		// Cleanup Models
 		MCharacter.cleanup();
 		MGround.cleanup();
+		MPlant.cleanup();
 
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
@@ -200,13 +231,23 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(MCharacter.indices.size()), 1, 0, 0, 0);
 
+		MPlant.bind(commandBuffer);
+		for (int i = 0; i < numOfPlants; i++) {
+			DSPlant[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MPlant.indices.size()), 1, 0, 0, 0);
+		}
+
 
 		// Ground
 		PToonBlinn.bind(commandBuffer);
 		MGround.bind(commandBuffer);
-		DSGround.bind(commandBuffer, PToonBlinn, 1, currentImage);
-		vkCmdDrawIndexed(commandBuffer,
-			static_cast<uint32_t>(MGround.indices.size()), 1, 0, 0, 0);
+		for (int i = 0; i < 4; i++)
+		{
+			DSGround[i].bind(commandBuffer, PToonBlinn, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MGround.indices.size()), 1, 0, 0, 0);
+		}
 	}
 
 	void updateUniformBuffer(uint32_t currentImage) 
@@ -256,8 +297,6 @@ protected:
 		RenderEnvironment(currentImage);		
 	}	
 
-
-
 	void PlayerMovement()
 	{
 		const float FOVy = glm::radians(45.0f);
@@ -292,7 +331,7 @@ protected:
 		yaw += ROT_SPEED * -r.y * deltaT;
 		roll += ROT_SPEED * r.z * deltaT;
 
-		glm::vec2 cp = { 10, 10 }; // CollisionPosition
+		glm::vec2 cp = { 5, 5 }; // CollisionPosition
 		nextPos += ux * MOVE_SPEED * m.x * deltaT;
 		nextPos += uz * MOVE_SPEED * m.z * deltaT;
 		bool xCollision = nextPos.x < cp.x + collisionThreshold && nextPos.x > cp.x - collisionThreshold;
@@ -348,6 +387,8 @@ protected:
 		ViewPrjOld = ViewPrj;
 	}
 
+
+
 	void CalculateCollisionPositions()
 	{
 		collisionPositions.push_back({ -10, -10 });
@@ -397,26 +438,57 @@ protected:
 
 	void RenderEnvironment(uint32_t currentImage)
 	{
-		GWorld = glm::translate(glm::scale(glm::mat4(1), glm::vec3(10)), glm::vec3(0, 0, 0));
-		uboGround.amb = 1.0f; uboGround.gamma = 180.0f; uboGround.sColor = glm::vec3(1.0f);
-		uboGround.mvpMat = ViewPrj * GWorld;
-		uboGround.mMat = GWorld;
-		uboGround.nMat = glm::inverse(glm::transpose(GWorld));
-		DSGround.map(currentImage, &uboGround, sizeof(uboGround), 0);
-
-		RenderFlowers(currentImage);
+		RenderGround(currentImage);
+		RenderPlants(currentImage);
 		RenderTrees(currentImage);
 		RenderRocks(currentImage);
 		RenderItems(currentImage);
 	}
 
-	void RenderFlowers(uint32_t currentImage) {}
+	void RenderGround(uint32_t currentImage)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			GWorld = glm::translate(glm::scale(glm::mat4(1), glm::vec3(mapSize / 2)), glm::vec3(groundPositions[i].x, 0, groundPositions[i].y));
+			uboGround[i].amb = 1.0f; uboGround[i].gamma = 180.0f; uboGround[i].sColor = glm::vec3(1.0f);
+			uboGround[i].mvpMat = ViewPrj * GWorld;
+			uboGround[i].mMat = GWorld;
+			uboGround[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSGround[i].map(currentImage, &uboGround[i], sizeof(uboGround[i]), 0);
+		}
+	}
+
+	void RenderPlants(uint32_t currentImage) 
+	{
+		for (int i = 0; i < numOfPlants; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(plantPositions[i].x, 0, plantPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(plantRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
+			uboPlant[i].amb = .7f; uboPlant[i].gamma = 180.0f; uboPlant[i].sColor = glm::vec3(1.0f);
+			uboPlant[i].mvpMat = ViewPrj * GWorld;
+			uboPlant[i].mMat = GWorld;
+			uboPlant[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSPlant[i].map(currentImage, &uboPlant[i], sizeof(uboPlant[i]), 0);
+		}
+	}
 
 	void RenderTrees(uint32_t currentImage) {}
 
 	void RenderRocks(uint32_t currentImage) {}
 
 	void RenderItems(uint32_t currentImage) {}
+
+	void CalculateEnvironmentObjectsPositionsAndRotations()
+	{
+		// Plants
+		for (int i = 0; i < numOfPlants; i++)
+		{
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			plantPositions[i] = { randX, randY };
+			plantRotations[i] = randRot;
+		}
+	}
 };
 
 

@@ -28,6 +28,9 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(109,
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(110,1): warning C4305: 'initializing': truncation from 'double' to 'float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(111,1): warning C4305: 'initializing': truncation from 'double' to 'float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(112,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(486,35): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(487,35): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(488,21): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
           with
           [
@@ -36,13 +39,12 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1993): message : while compiling class template member function 'void Model<VertexMesh>::loadModelOBJ(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2274): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelOBJ(std::string)' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2270): message : while compiling class template member function 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(120): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(43): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(131): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(48): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2101,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2061): message : while compiling class template member function 'void Model<VertexMesh>::loadModelGLTF(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2276): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelGLTF(std::string)' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2115,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2129,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   JungleExploration.vcxproj -> D:\Projects\VulkanProject\JungleExploration\x64\Debug\JungleExploration.exe
