@@ -113,7 +113,7 @@ protected:
 	float tree4Scales[numOfTrees4];
 	//Jump params
 	bool isJumping = FALSE;
-	float VJumpIni = 1.0;
+	float VJumpIni = .5f;
 	float VJump = VJumpIni;
 	float g = -1.1f;
 
@@ -594,10 +594,7 @@ protected:
 			VJump += g * deltaT;
 			//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
 		}
-		if (VJump < -VJumpIni) {
-			isJumping = FALSE;
-			VJump = VJumpIni;
-		}
+
 
 		glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
 		glm::vec3 uy = glm::vec3(0, VJump, 0);
@@ -617,30 +614,16 @@ protected:
 		if (!isCollision)
 		{
 			pos += ux * MOVE_SPEED * m.x * deltaT;
-			pos += uy * MOVE_SPEED * m.y * deltaT;
 			pos += uz * MOVE_SPEED * m.z * deltaT;
 		}
+		pos += uy * MOVE_SPEED * m.y * deltaT;
+
+		if (pos.y < 0.0f) {
+			isJumping = FALSE;
+			VJump = VJumpIni;
+		}
 		isCollision = false;
-		//if (nextPos.x < cp.x + collisionThreshold && nextPos.x > cp.x - collisionThreshold)
-		//{
-		//	pos.x = cp.x - collisionThreshold;
-		//}
-		//if (nextPos.z < cp.y + collisionThreshold && nextPos.z > cp.y - collisionThreshold)
-		//{
-		//	pos.z = cp.y - collisionThreshold;
-		//}
-		//pos += ux * MOVE_SPEED * m.x * deltaT;
-		//pos += uy * MOVE_SPEED * m.y * deltaT;
-		//pos += uz * MOVE_SPEED * m.z * deltaT;
-		//if (pos.x < cp.x + collisionThreshold && pos.x > cp.x - collisionThreshold) 
-		//{
-		//	pos.x = cp.x - collisionThreshold;
-		//}
-		//if (pos.z < cp.y + collisionThreshold && pos.z > cp.y - collisionThreshold)
-		//{
-		//	pos.z = cp.y - collisionThreshold;
-		//}
-		//std::cout << pos.x << "-";
+
 		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 		if (pitch <= minPitch)
 			pitch = minPitch;
