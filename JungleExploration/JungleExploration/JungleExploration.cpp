@@ -35,7 +35,16 @@ protected:
 	static const int numOfPlants = 200;
 	static const int numOfFlowers = 200;
 	static const int numOfMountains = 7 * 4;
-	static const int numOfCollisions = 0;
+	static const int numOfSmallRocks = 200;
+	static const int numOfStumps = 15;
+	static const int numOfClouds = 15;
+	static const int numOfRocks = 15;
+	static const int numOfTrees = 10;
+	static const int numOfTrees1 = 10;
+	static const int numOfTrees2 = 10;
+	static const int numOfTrees3 = 10;
+	static const int numOfTrees4 = 10;
+	static const int numOfCollisions = numOfRocks + numOfStumps + numOfTrees * 5;
 
 	// Descriptor Set Layouts
 	DescriptorSetLayout DSLGubo, DSLToon, DSLToonBlinn;
@@ -47,16 +56,16 @@ protected:
 	Pipeline PToon, PToonBlinn;
 
 	// Models
-	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain;
+	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock, MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4;
 
 	// Textures
-	Texture TCharacter, TGround, TPlant, TFlower, TMountain;
+	Texture TCharacter, TGround, TEnv, TEnv2;
 
 	// Descriptor sets
-	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], DSMountain[numOfMountains];
+	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps], DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1], DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4];
 
 	// Uniform Blocks
-	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], uboMountain[numOfMountains];
+	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps], uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1], uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4];
 	GlobalUniformBufferObject gubo;
 
 	// Other Parameters
@@ -67,7 +76,7 @@ protected:
 	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
 	float camAlpha = 0.0f, camBeta = 0.0f;
 	// Environment Parameters
-	float randX, randY, randRot;
+	float randX, randY, randRot, randZ;
 	glm::vec2 groundPositions[4] = { {-1, -1}, {-1, 0}, {0, -1}, {0, 0} };
 	glm::vec2 plantPositions[numOfPlants];
 	float plantRotations[numOfPlants];
@@ -76,12 +85,50 @@ protected:
 	glm::vec2 mountainPositions[numOfMountains];
 	float mountainRotations[numOfMountains];
 	float mountainScales[numOfMountains];
+	glm::vec2 smallRockPositions[numOfSmallRocks];
+	float smallRockRotations[numOfSmallRocks];
+	glm::vec2 stumpPositions[numOfStumps];
+	float stumpRotations[numOfStumps];
+	float stumpScales[numOfStumps];
+	glm::vec3 cloudPositions[numOfClouds];
+	float cloudRotations[numOfClouds];
+	float cloudScales[numOfClouds];
+	glm::vec2 rockPositions[numOfRocks];
+	float rockRotations[numOfRocks];
+	float rockScales[numOfRocks];
+	glm::vec2 treePositions[numOfTrees];
+	float treeRotations[numOfTrees];
+	float treeScales[numOfTrees];
+	glm::vec2 tree1Positions[numOfTrees1];
+	float tree1Rotations[numOfTrees1];
+	float tree1Scales[numOfTrees1];
+	glm::vec2 tree2Positions[numOfTrees2];
+	float tree2Rotations[numOfTrees2];
+	float tree2Scales[numOfTrees2];
+	glm::vec2 tree3Positions[numOfTrees3];
+	float tree3Rotations[numOfTrees3];
+	float tree3Scales[numOfTrees3];
+	glm::vec2 tree4Positions[numOfTrees4];
+	float tree4Rotations[numOfTrees4];
+	float tree4Scales[numOfTrees4];
+	//Jump params
+	bool isJumping = FALSE;
+	float VJumpIni = 1.0;
+	float VJump = VJumpIni;
+	float g = -1.1f;
+
 	// Collision Parameters
 	bool xCollision = false, yCollision = false, isCollision = false;
 	int thresholdIndex = 0;
 	float mountainThreshold = 7.8f;
 	float mountainThresholdCoefficient = 10;
 	std::tuple<glm::vec2, float> collisionsInfo[numOfCollisions];
+	float rockThreshold = 0.7f;
+	float rockThresholdCoefficient = 1;
+	float stumpThreshold = 0.4f;
+	float stumpThresholdCoefficient = 1;
+	float treeThreshold = 0.3f;
+	float treeThresholdCoefficient = 1;
 
 
 	void setWindowParameters()
@@ -101,9 +148,9 @@ protected:
 
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2;
+		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5;
 		texturesInPool = 4;
-		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2;
+		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5;
 	}
 
 	void localInit()
@@ -144,13 +191,21 @@ protected:
 		MPlant.init(this, &VMesh, "Models/plant.obj", OBJ);
 		MFlower.init(this, &VMesh, "Models/flower.obj", OBJ);
 		MMountain.init(this, &VMesh, "Models/mountain.obj", OBJ);
+		MSmallRock.init(this, &VMesh, "Models/smallrock.obj", OBJ);
+		MStump.init(this, &VMesh, "Models/stump.obj", OBJ);
+		MCloud.init(this, &VMesh, "Models/cloud.obj", OBJ);
+		MRock.init(this, &VMesh, "Models/rock2.obj", OBJ);
+		MTree.init(this, &VMesh, "Models/tree.obj", OBJ);
+		MTree1.init(this, &VMesh, "Models/tree1.obj", OBJ);
+		MTree2.init(this, &VMesh, "Models/tree2.obj", OBJ);
+		MTree3.init(this, &VMesh, "Models/tree3.obj", OBJ);
+		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
 
 		// Initializing Textures
 		TCharacter.init(this, "textures/Wood.png");
 		TGround.init(this, "textures/Ground.png");
-		TPlant.init(this, "textures/Texture_01.jpg");
-		TFlower.init(this, "textures/Texture_01.jpg");
-		TMountain.init(this, "textures/Terrain-Texture_2.png");
+		TEnv.init(this, "textures/Texture_01.jpg");
+		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		// Init local variables
 		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
@@ -181,21 +236,84 @@ protected:
 		{
 			DSPlant[i].init(this, &DSLToon, {
 					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
-					{1, TEXTURE, 0, &TPlant},
+					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfFlowers; i++)
 		{
 			DSFlower[i].init(this, &DSLToon, {
 					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
-					{1, TEXTURE, 0, &TFlower},
+					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfMountains; i++)
 		{
 			DSMountain[i].init(this, &DSLToon, {
 					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
-					{1, TEXTURE, 0, &TMountain},
+					{1, TEXTURE, 0, &TEnv2},
+				});
+		}
+		for (int i = 0; i < numOfSmallRocks; i++)
+		{
+			DSSmallRock[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
+				});
+		}
+		for (int i = 0; i < numOfStumps; i++)
+		{
+			DSStump[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
+				});
+		}
+		for (int i = 0; i < numOfClouds; i++)
+		{
+			DSCloud[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv2},
+				});
+		}
+		for (int i = 0; i < numOfRocks; i++)
+		{
+			DSRock[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
+				});
+		}
+		for (int i = 0; i < numOfTrees; i++)
+		{
+			DSTree[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv2},
+				});
+		}
+		for (int i = 0; i < numOfTrees1; i++)
+		{
+			DSTree1[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
+				});
+		}
+		for (int i = 0; i < numOfTrees2; i++)
+		{
+			DSTree2[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
+				});
+		}
+		for (int i = 0; i < numOfTrees3; i++)
+		{
+			DSTree3[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
+				});
+		}
+		for (int i = 0; i < numOfTrees4; i++)
+		{
+			DSTree4[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 
@@ -221,6 +339,25 @@ protected:
 			DSFlower[i].cleanup();
 		for (int i = 0; i < numOfMountains; i++)
 			DSMountain[i].cleanup();
+		for (int i = 0; i < numOfSmallRocks; i++)
+			DSSmallRock[i].cleanup();
+		for (int i = 0; i < numOfSmallRocks; i++)
+			DSStump[i].cleanup();
+		for (int i = 0; i < numOfClouds; i++)
+			DSCloud[i].cleanup();
+		for (int i = 0; i < numOfRocks; i++)
+			DSRock[i].cleanup();
+		for (int i = 0; i < numOfTrees; i++)
+			DSTree[i].cleanup();
+		for (int i = 0; i < numOfTrees1; i++)
+			DSTree1[i].cleanup();
+		for (int i = 0; i < numOfTrees2; i++)
+			DSTree2[i].cleanup();
+		for (int i = 0; i < numOfTrees3; i++)
+			DSTree3[i].cleanup();
+		for (int i = 0; i < numOfTrees4; i++)
+			DSTree4[i].cleanup();
+
 	}
 
 	void localCleanup()
@@ -229,9 +366,8 @@ protected:
 		// Cleanup Textures
 		TCharacter.cleanup();
 		TGround.cleanup();
-		TPlant.cleanup();
-		TFlower.cleanup();
-		TMountain.cleanup();
+		TEnv.cleanup();
+		TEnv2.cleanup();
 
 		// Cleanup Models
 		MCharacter.cleanup();
@@ -239,6 +375,15 @@ protected:
 		MPlant.cleanup();
 		MFlower.cleanup();
 		MMountain.cleanup();
+		MSmallRock.cleanup();
+		MStump.cleanup();
+		MCloud.cleanup();
+		MRock.cleanup();
+		MTree.cleanup();
+		MTree1.cleanup();
+		MTree2.cleanup();
+		MTree3.cleanup();
+		MTree4.cleanup();
 
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
@@ -288,6 +433,68 @@ protected:
 				static_cast<uint32_t>(MMountain.indices.size()), 1, 0, 0, 0);
 		}
 
+		MSmallRock.bind(commandBuffer);
+		for (int i = 0; i < numOfSmallRocks; i++) {
+			DSSmallRock[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MSmallRock.indices.size()), 1, 0, 0, 0);
+		}
+
+		MStump.bind(commandBuffer);
+		for (int i = 0; i < numOfStumps; i++) {
+			DSStump[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MStump.indices.size()), 1, 0, 0, 0);
+		}
+
+		MCloud.bind(commandBuffer);
+		for (int i = 0; i < numOfClouds; i++) {
+			DSCloud[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MCloud.indices.size()), 1, 0, 0, 0);
+		}
+
+		MRock.bind(commandBuffer);
+		for (int i = 0; i < numOfRocks; i++) {
+			DSRock[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MRock.indices.size()), 1, 0, 0, 0);
+		}
+
+		MTree.bind(commandBuffer);
+		for (int i = 0; i < numOfTrees; i++) {
+			DSTree[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MTree.indices.size()), 1, 0, 0, 0);
+		}
+
+		MTree1.bind(commandBuffer);
+		for (int i = 0; i < numOfTrees1; i++) {
+			DSTree1[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MTree1.indices.size()), 1, 0, 0, 0);
+		}
+
+		MTree2.bind(commandBuffer);
+		for (int i = 0; i < numOfTrees2; i++) {
+			DSTree2[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MTree2.indices.size()), 1, 0, 0, 0);
+		}
+
+		MTree3.bind(commandBuffer);
+		for (int i = 0; i < numOfTrees3; i++) {
+			DSTree3[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MTree3.indices.size()), 1, 0, 0, 0);
+		}
+
+		MTree4.bind(commandBuffer);
+		for (int i = 0; i < numOfTrees4; i++) {
+			DSTree4[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MTree4.indices.size()), 1, 0, 0, 0);
+		}
 
 		// Ground
 		PToonBlinn.bind(commandBuffer);
@@ -316,7 +523,7 @@ protected:
 				debounce = true;
 				curDebounce = GLFW_KEY_SPACE;
 				currentScene = (currentScene + 1) % 2;
-				std::cout << "Scene : " << currentScene << "\n";
+				//std::cout << "Scene : " << currentScene << "\n";
 				RebuildPipeline();
 			}
 		}
@@ -347,6 +554,14 @@ protected:
 		RenderEnvironment(currentImage);
 	}
 
+	void PlayerJump(float deltaT, glm::vec3& m)
+	{
+		if (glfwGetKey(window, GLFW_KEY_C)) {
+			isJumping = TRUE;
+			//m.y = 1.0f;
+		}
+	}
+
 	void PlayerMovement()
 	{
 		const float FOVy = glm::radians(45.0f);
@@ -367,26 +582,38 @@ protected:
 		const float MOVE_SPEED = 5.0f;
 
 		float deltaT;
-		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
+		glm::vec3 m = glm::vec3(0.0f, static_cast<int>(isJumping), 0.0f), r = glm::vec3(0.0f);
 		bool fire = false;
 		getSixAxis(deltaT, m, r, fire);
+		PlayerJump(deltaT, m);
 
 		static glm::vec3 pos = startingPosition;
 		glm::vec3 nextPos = pos;
 
+		if (isJumping) {
+			VJump += g * deltaT;
+			//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
+		}
+		if (VJump < -VJumpIni) {
+			isJumping = FALSE;
+			VJump = VJumpIni;
+		}
+
 		glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
-		glm::vec3 uy = glm::vec3(0, 1, 0);
+		glm::vec3 uy = glm::vec3(0, VJump, 0);
 		glm::vec3 uz = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1));
 		pitch += ROT_SPEED * r.x * deltaT;
 		yaw += ROT_SPEED * -r.y * deltaT;
 		roll += ROT_SPEED * r.z * deltaT;
-
+		//std::cout << pitch << "-";
 		glm::vec2 cp = { 5, 5 }; // CollisionPosition
 		nextPos += ux * MOVE_SPEED * m.x * deltaT;
 		nextPos += uz * MOVE_SPEED * m.z * deltaT;
+		//std::cout << nextPos.x << "-";
 
 		MapBorderCollisionHandler(pos, nextPos);
 		CollisionChecker(nextPos);
+		std::cout << uy.y;
 		if (!isCollision)
 		{
 			pos += ux * MOVE_SPEED * m.x * deltaT;
@@ -440,7 +667,7 @@ protected:
 	}
 
 
-	void MapBorderCollisionHandler(glm::vec3 &pos, glm::vec3 &nextPos)
+	void MapBorderCollisionHandler(glm::vec3& pos, glm::vec3& nextPos)
 	{
 		if (nextPos.x < -mapSize / 2 + mountainThreshold)
 		{
@@ -457,6 +684,10 @@ protected:
 		else if (nextPos.z > mapSize / 2 - mountainThreshold)
 		{
 			pos.z = mapSize / 2 - mountainThreshold;
+		}
+		if (nextPos.y < 0)
+		{
+			pos.y = 0;
 		}
 	}
 
@@ -529,7 +760,14 @@ protected:
 		RenderPlants(currentImage);
 		RenderFlowers(currentImage);
 		RenderMountains(currentImage);
+		RenderSmallRocks(currentImage);
+		RenderStumps(currentImage);
+		RenderClouds(currentImage);
 		RenderTrees(currentImage);
+		RenderTrees1(currentImage);
+		RenderTrees2(currentImage);
+		RenderTrees3(currentImage);
+		RenderTrees4(currentImage);
 		RenderRocks(currentImage);
 		RenderItems(currentImage);
 	}
@@ -586,9 +824,122 @@ protected:
 		}
 	}
 
-	void RenderTrees(uint32_t currentImage) {}
+	void RenderSmallRocks(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfSmallRocks; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(smallRockPositions[i].x, 0, smallRockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(smallRockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.1f));
+			uboSmallRock[i].amb = .7f; uboSmallRock[i].gamma = 180.0f; uboSmallRock[i].sColor = glm::vec3(1.0f);
+			uboSmallRock[i].mvpMat = ViewPrj * GWorld;
+			uboSmallRock[i].mMat = GWorld;
+			uboSmallRock[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSSmallRock[i].map(currentImage, &uboSmallRock[i], sizeof(uboSmallRock[i]), 0);
+		}
+	}
 
-	void RenderRocks(uint32_t currentImage) {}
+	void RenderStumps(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfStumps; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(stumpPositions[i].x, 0, stumpPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(stumpRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(stumpScales[i] * mapSize / 20));
+			uboStump[i].amb = .7f; uboStump[i].gamma = 180.0f; uboStump[i].sColor = glm::vec3(1.0f);
+			uboStump[i].mvpMat = ViewPrj * GWorld;
+			uboStump[i].mMat = GWorld;
+			uboStump[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSStump[i].map(currentImage, &uboStump[i], sizeof(uboStump[i]), 0);
+		}
+	}
+
+	void RenderClouds(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfClouds; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(cloudPositions[i].x, cloudPositions[i].z, cloudPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(cloudRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(cloudScales[i] * mapSize / 20));
+			uboCloud[i].amb = .7f; uboCloud[i].gamma = 180.0f; uboCloud[i].sColor = glm::vec3(1.0f);
+			uboCloud[i].mvpMat = ViewPrj * GWorld;
+			uboCloud[i].mMat = GWorld;
+			uboCloud[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSCloud[i].map(currentImage, &uboCloud[i], sizeof(uboCloud[i]), 0);
+		}
+	}
+
+	void RenderRocks(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfRocks; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(rockPositions[i].x, 0, rockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(rockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(rockScales[i] * mapSize / 20));
+			uboRock[i].amb = .7f; uboRock[i].gamma = 180.0f; uboRock[i].sColor = glm::vec3(1.0f);
+			uboRock[i].mvpMat = ViewPrj * GWorld;
+			uboRock[i].mMat = GWorld;
+			uboRock[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSRock[i].map(currentImage, &uboRock[i], sizeof(uboRock[i]), 0);
+		}
+	}
+
+	void RenderTrees(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfTrees; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(treePositions[i].x, 0, treePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(treeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(treeScales[i] * mapSize / 20));
+			uboTree[i].amb = .7f; uboTree[i].gamma = 180.0f; uboTree[i].sColor = glm::vec3(1.0f);
+			uboTree[i].mvpMat = ViewPrj * GWorld;
+			uboTree[i].mMat = GWorld;
+			uboTree[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSTree[i].map(currentImage, &uboTree[i], sizeof(uboTree[i]), 0);
+		}
+	}
+
+	void RenderTrees1(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfTrees1; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree1Positions[i].x, 0, tree1Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree1Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree1Scales[i] * mapSize / 20));
+			uboTree1[i].amb = .7f; uboTree1[i].gamma = 180.0f; uboTree1[i].sColor = glm::vec3(1.0f);
+			uboTree1[i].mvpMat = ViewPrj * GWorld;
+			uboTree1[i].mMat = GWorld;
+			uboTree1[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSTree1[i].map(currentImage, &uboTree1[i], sizeof(uboTree1[i]), 0);
+		}
+	}
+
+	void RenderTrees2(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfTrees2; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree2Positions[i].x, 0, tree2Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree2Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree2Scales[i] * mapSize / 20));
+			uboTree2[i].amb = .7f; uboTree2[i].gamma = 180.0f; uboTree2[i].sColor = glm::vec3(1.0f);
+			uboTree2[i].mvpMat = ViewPrj * GWorld;
+			uboTree2[i].mMat = GWorld;
+			uboTree2[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSTree2[i].map(currentImage, &uboTree2[i], sizeof(uboTree2[i]), 0);
+		}
+	}
+
+	void RenderTrees3(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfTrees3; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree3Positions[i].x, 0, tree3Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree3Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree3Scales[i] * mapSize / 20));
+			uboTree3[i].amb = .7f; uboTree3[i].gamma = 180.0f; uboTree3[i].sColor = glm::vec3(1.0f);
+			uboTree3[i].mvpMat = ViewPrj * GWorld;
+			uboTree3[i].mMat = GWorld;
+			uboTree3[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSTree3[i].map(currentImage, &uboTree3[i], sizeof(uboTree3[i]), 0);
+		}
+	}
+
+	void RenderTrees4(uint32_t currentImage)
+	{
+		for (int i = 0; i < numOfTrees4; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree4Positions[i].x, 0, tree4Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree4Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree4Scales[i] * mapSize / 20));
+			uboTree4[i].amb = .7f; uboTree4[i].gamma = 180.0f; uboTree4[i].sColor = glm::vec3(1.0f);
+			uboTree4[i].mvpMat = ViewPrj * GWorld;
+			uboTree4[i].mMat = GWorld;
+			uboTree4[i].nMat = glm::inverse(glm::transpose(GWorld));
+			DSTree4[i].map(currentImage, &uboTree4[i], sizeof(uboTree4[i]), 0);
+		}
+	}
 
 	void RenderItems(uint32_t currentImage) {}
 
@@ -633,6 +984,112 @@ protected:
 			//AddCollisionPoint(mountainPositions[i + 1 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
 			//AddCollisionPoint(mountainPositions[i + 2 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
 			//AddCollisionPoint(mountainPositions[i + 3 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
+		}
+
+		// SmallRocks
+		for (int i = 0; i < numOfSmallRocks; i++)
+		{
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			smallRockPositions[i] = { randX, randY };
+			smallRockRotations[i] = randRot;
+		}
+
+		// Stumps
+		for (int i = 0; i < numOfStumps; i++)
+		{
+			stumpScales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			stumpPositions[i] = { randX, randY };
+			stumpRotations[i] = randRot;
+			AddCollisionPoint(stumpPositions[i], stumpThreshold + (stumpScales[i] - 0.2f) * stumpThresholdCoefficient);
+		}
+
+		// Clouds
+		for (int i = 0; i < numOfClouds; i++)
+		{
+			cloudScales[i] = (float)rand() / RAND_MAX / 6 + 0.15;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			randZ = (rand() < RAND_MAX / 2) ? mapSize / 3 : mapSize / 3 + 6;
+			cloudPositions[i] = { randX, randY, randZ };
+			cloudRotations[i] = randRot;
+		}
+
+		// Rocks
+		for (int i = 0; i < numOfRocks; i++)
+		{
+			rockScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			rockPositions[i] = { randX, randY };
+			rockRotations[i] = randRot;
+			AddCollisionPoint(rockPositions[i], rockThreshold + (rockScales[i] - 0.05f) * rockThresholdCoefficient);
+		}
+
+		// Trees
+		for (int i = 0; i < numOfTrees; i++)
+		{
+			treeScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			treePositions[i] = { randX, randY };
+			treeRotations[i] = randRot;
+			AddCollisionPoint(treePositions[i], treeThreshold + (treeScales[i] - 0.05f) * treeThresholdCoefficient);
+		}
+
+		// Trees1
+		for (int i = 0; i < numOfTrees1; i++)
+		{
+			tree1Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			tree1Positions[i] = { randX, randY };
+			tree1Rotations[i] = randRot;
+			AddCollisionPoint(tree1Positions[i], treeThreshold + (tree1Scales[i] - 0.2f) * treeThresholdCoefficient);
+		}
+
+		// Trees2
+		for (int i = 0; i < numOfTrees2; i++)
+		{
+			tree2Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			tree2Positions[i] = { randX, randY };
+			tree2Rotations[i] = randRot;
+			AddCollisionPoint(tree2Positions[i], treeThreshold + (tree2Scales[i] - 0.2f) * treeThresholdCoefficient);
+		}
+
+		// Trees3
+		for (int i = 0; i < numOfTrees3; i++)
+		{
+			tree3Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			tree3Positions[i] = { randX, randY };
+			tree3Rotations[i] = randRot;
+			AddCollisionPoint(tree3Positions[i], treeThreshold + (tree3Scales[i] - 0.2f) * treeThresholdCoefficient);
+		}
+
+		// Trees4
+		for (int i = 0; i < numOfTrees4; i++)
+		{
+			tree4Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
+			randX = rand() % (mapSize - 1) - (mapSize / 2);
+			randY = rand() % (mapSize - 1) - (mapSize / 2);
+			randRot = rand() % (360 + 1);
+			tree4Positions[i] = { randX, randY };
+			tree4Rotations[i] = randRot;
+			AddCollisionPoint(tree4Positions[i], treeThreshold + (tree4Scales[i] - 0.2f) * treeThresholdCoefficient);
 		}
 	}
 };
