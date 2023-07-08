@@ -44,6 +44,7 @@ protected:
 	static const int numOfTrees2 = 10;
 	static const int numOfTrees3 = 10;
 	static const int numOfTrees4 = 10;
+	static const int numOfItems = 5;
 	static const int numOfCollisions = numOfRocks + numOfStumps + numOfTrees * 5;
 
 	// Descriptor Set Layouts
@@ -56,16 +57,23 @@ protected:
 	Pipeline PToon, PToonBlinn;
 
 	// Models
-	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock, MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4;
+	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock, 
+		MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4, MItem;
 
 	// Textures
-	Texture TCharacter, TGround, TEnv, TEnv2;
+	Texture TCharacter, TGround, TEnv, TEnv2, TItem;
 
 	// Descriptor sets
-	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps], DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1], DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4];
+	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], 
+		DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps], 
+		DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1], 
+		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems];
 
 	// Uniform Blocks
-	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps], uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1], uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4];
+	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], 
+		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps], 
+		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1], 
+		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems];
 	GlobalUniformBufferObject gubo;
 
 	// Other Parameters
@@ -75,6 +83,11 @@ protected:
 	glm::mat4 World, ViewPrj, GWorld, ViewPrjOld;
 	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
 	float camAlpha = 0.0f, camBeta = 0.0f;
+	glm::vec3 characterRotation = { 0.0f, 90.0f , 0.0f};
+	glm::vec3 realNormX = { 1, 0, 0 };
+	glm::vec3 realNormY = { 0, 1, 0 };
+	glm::vec3 realNormZ = { 0, 0, 1 };
+
 	// Environment Parameters
 	float randX, randY, randRot, randZ;
 	glm::vec2 groundPositions[4] = { {-1, -1}, {-1, 0}, {0, -1}, {0, 0} };
@@ -111,6 +124,9 @@ protected:
 	glm::vec2 tree4Positions[numOfTrees4];
 	float tree4Rotations[numOfTrees4];
 	float tree4Scales[numOfTrees4];
+	glm::vec2 itemPositions[numOfItems];
+	float itemRotations[numOfItems];
+
 	//Jump params
 	bool isJumping = FALSE;
 	float VJumpIni = .5f;
@@ -137,7 +153,7 @@ protected:
 		windowHeight = 600;
 		windowTitle = "Jungle Exploration";
 		windowResizable = GLFW_TRUE;
-		initialBackgroundColor = { 0.0f, 0.0f, 0.01f, 1.0f };
+		initialBackgroundColor = { 0.5f, 0.8f, 0.9f, 1.0f };
 
 		Ar = (float)windowWidth / (float)windowHeight;
 	}
@@ -148,9 +164,11 @@ protected:
 
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5;
-		texturesInPool = 4;
-		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5;
+		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + 
+			numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
+		texturesInPool = 5;
+		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 +
+			numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
 	}
 
 	void localInit()
@@ -200,12 +218,14 @@ protected:
 		MTree2.init(this, &VMesh, "Models/tree2.obj", OBJ);
 		MTree3.init(this, &VMesh, "Models/tree3.obj", OBJ);
 		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
+		MItem.init(this, &VMesh, "Models/red.obj", OBJ);
 
 		// Initializing Textures
 		TCharacter.init(this, "textures/Wood.png");
 		TGround.init(this, "textures/Ground.png");
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
+		TItem.init(this, "textures/Wood.png");
 		// Init local variables
 		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
@@ -316,6 +336,13 @@ protected:
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
+		for (int i = 0; i < numOfItems; i++)
+		{
+			DSItem[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TItem},
+				});
+		}
 
 	}
 
@@ -341,7 +368,7 @@ protected:
 			DSMountain[i].cleanup();
 		for (int i = 0; i < numOfSmallRocks; i++)
 			DSSmallRock[i].cleanup();
-		for (int i = 0; i < numOfSmallRocks; i++)
+		for (int i = 0; i < numOfStumps; i++)
 			DSStump[i].cleanup();
 		for (int i = 0; i < numOfClouds; i++)
 			DSCloud[i].cleanup();
@@ -357,6 +384,8 @@ protected:
 			DSTree3[i].cleanup();
 		for (int i = 0; i < numOfTrees4; i++)
 			DSTree4[i].cleanup();
+		for (int i = 0; i < numOfItems; i++)
+			DSItem[i].cleanup();
 
 	}
 
@@ -368,6 +397,7 @@ protected:
 		TGround.cleanup();
 		TEnv.cleanup();
 		TEnv2.cleanup();
+		TItem.cleanup();
 
 		// Cleanup Models
 		MCharacter.cleanup();
@@ -384,6 +414,7 @@ protected:
 		MTree2.cleanup();
 		MTree3.cleanup();
 		MTree4.cleanup();
+		MItem.cleanup();
 
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
@@ -496,6 +527,13 @@ protected:
 				static_cast<uint32_t>(MTree4.indices.size()), 1, 0, 0, 0);
 		}
 
+		MItem.bind(commandBuffer);
+		for (int i = 0; i < numOfItems; i++) {
+			DSItem[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MItem.indices.size()), 1, 0, 0, 0);
+		}
+
 		// Ground
 		PToonBlinn.bind(commandBuffer);
 		MGround.bind(commandBuffer);
@@ -518,17 +556,17 @@ protected:
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
-		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+		if (glfwGetKey(window, GLFW_KEY_M)) {
 			if (!debounce) {
 				debounce = true;
-				curDebounce = GLFW_KEY_SPACE;
+				curDebounce = GLFW_KEY_M;
 				currentScene = (currentScene + 1) % 2;
 				//std::cout << "Scene : " << currentScene << "\n";
 				RebuildPipeline();
 			}
 		}
 		else {
-			if ((curDebounce == GLFW_KEY_SPACE) && debounce) {
+			if ((curDebounce == GLFW_KEY_M) && debounce) {
 				debounce = false;
 				curDebounce = 0;
 			}
@@ -556,7 +594,7 @@ protected:
 
 	void PlayerJump(float deltaT, glm::vec3& m)
 	{
-		if (glfwGetKey(window, GLFW_KEY_C)) {
+		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
 			isJumping = TRUE;
 			//m.y = 1.0f;
 		}
@@ -575,7 +613,7 @@ protected:
 		const float camHeight = 0.25;
 		const float camDist = 1.5;
 		// Camera Pitch limits
-		const float minPitch = glm::radians(-8.75f);
+		const float minPitch = glm::radians(-5.0f);
 		const float maxPitch = glm::radians(60.0f);
 		// Rotation and motion speed
 		const float ROT_SPEED = glm::radians(120.0f);
@@ -595,7 +633,6 @@ protected:
 			//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
 		}
 
-
 		glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
 		glm::vec3 uy = glm::vec3(0, VJump, 0);
 		glm::vec3 uz = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1));
@@ -606,15 +643,17 @@ protected:
 		glm::vec2 cp = { 5, 5 }; // CollisionPosition
 		nextPos += ux * MOVE_SPEED * m.x * deltaT;
 		nextPos += uz * MOVE_SPEED * m.z * deltaT;
-		//std::cout << nextPos.x << "-";
 
 		MapBorderCollisionHandler(pos, nextPos);
 		CollisionChecker(nextPos);
-		std::cout << uy.y;
+		//std::cout << uy.y;
 		if (!isCollision)
 		{
 			pos += ux * MOVE_SPEED * m.x * deltaT;
 			pos += uz * MOVE_SPEED * m.z * deltaT;
+			//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
+			//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+			std::cout << pos.x << "=" << pos.z << " & ";
 		}
 		pos += uy * MOVE_SPEED * m.y * deltaT;
 
@@ -642,7 +681,7 @@ protected:
 		ViewPrj = Mp * Mv;
 
 		// DAMPING
-		float lambda = 7;
+		float lambda = 20;
 		if (ViewPrjOld == glm::mat4(1))
 			ViewPrjOld = ViewPrj;
 		ViewPrj = ViewPrjOld * exp(-lambda * deltaT) + ViewPrj * (1 - exp(-lambda * deltaT));
@@ -729,7 +768,7 @@ protected:
 	void RenderCharacter(uint32_t currentImage)
 	{
 		glm::mat4 coefficient = currentScene == 0 ? glm::mat4(1) : World;
-		GWorld = coefficient * glm::rotate(glm::mat4(1.0f), glm::radians(90.0f), glm::vec3(0, 1, 0));
+		GWorld = coefficient * glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.y), realNormY);
 		uboCharacter.amb = 1.0f; uboCharacter.gamma = 180.0f; uboCharacter.sColor = glm::vec3(1.0f);
 		uboCharacter.mvpMat = ViewPrj * GWorld;
 		uboCharacter.mMat = GWorld;
@@ -760,11 +799,7 @@ protected:
 		for (int i = 0; i < 4; i++)
 		{
 			GWorld = glm::translate(glm::scale(glm::mat4(1), glm::vec3(mapSize / 2)), glm::vec3(groundPositions[i].x, 0, groundPositions[i].y));
-			uboGround[i].amb = 1.0f; uboGround[i].gamma = 180.0f; uboGround[i].sColor = glm::vec3(1.0f);
-			uboGround[i].mvpMat = ViewPrj * GWorld;
-			uboGround[i].mMat = GWorld;
-			uboGround[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSGround[i].map(currentImage, &uboGround[i], sizeof(uboGround[i]), 0);
+			SetUboDs(currentImage, uboGround, DSGround, i);
 		}
 	}
 
@@ -773,11 +808,7 @@ protected:
 		for (int i = 0; i < numOfPlants; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(plantPositions[i].x, 0, plantPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(plantRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
-			uboPlant[i].amb = .7f; uboPlant[i].gamma = 180.0f; uboPlant[i].sColor = glm::vec3(1.0f);
-			uboPlant[i].mvpMat = ViewPrj * GWorld;
-			uboPlant[i].mMat = GWorld;
-			uboPlant[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSPlant[i].map(currentImage, &uboPlant[i], sizeof(uboPlant[i]), 0);
+			SetUboDs(currentImage, uboPlant, DSPlant, i, 0.7f);
 		}
 	}
 
@@ -786,11 +817,7 @@ protected:
 		for (int i = 0; i < numOfFlowers; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(flowerPositions[i].x, 0, flowerPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(flowerRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
-			uboFlower[i].amb = .7f; uboFlower[i].gamma = 180.0f; uboFlower[i].sColor = glm::vec3(1.0f);
-			uboFlower[i].mvpMat = ViewPrj * GWorld;
-			uboFlower[i].mMat = GWorld;
-			uboFlower[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSFlower[i].map(currentImage, &uboFlower[i], sizeof(uboFlower[i]), 0);
+			SetUboDs(currentImage, uboFlower, DSFlower, i);
 		}
 	}
 
@@ -799,11 +826,7 @@ protected:
 		for (int i = 0; i < numOfMountains; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(mountainPositions[i].x, 0, mountainPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(mountainRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(mountainScales[i] * mapSize / 20));
-			uboMountain[i].amb = 1.0f; uboMountain[i].gamma = 180.0f; uboMountain[i].sColor = glm::vec3(1.0f);
-			uboMountain[i].mvpMat = ViewPrj * GWorld;
-			uboMountain[i].mMat = GWorld;
-			uboMountain[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSMountain[i].map(currentImage, &uboMountain[i], sizeof(uboMountain[i]), 0);
+			SetUboDs(currentImage, uboMountain, DSMountain, i);
 		}
 	}
 
@@ -812,11 +835,7 @@ protected:
 		for (int i = 0; i < numOfSmallRocks; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(smallRockPositions[i].x, 0, smallRockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(smallRockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.1f));
-			uboSmallRock[i].amb = .7f; uboSmallRock[i].gamma = 180.0f; uboSmallRock[i].sColor = glm::vec3(1.0f);
-			uboSmallRock[i].mvpMat = ViewPrj * GWorld;
-			uboSmallRock[i].mMat = GWorld;
-			uboSmallRock[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSSmallRock[i].map(currentImage, &uboSmallRock[i], sizeof(uboSmallRock[i]), 0);
+			SetUboDs(currentImage, uboSmallRock, DSSmallRock, i);
 		}
 	}
 
@@ -825,11 +844,7 @@ protected:
 		for (int i = 0; i < numOfStumps; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(stumpPositions[i].x, 0, stumpPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(stumpRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(stumpScales[i] * mapSize / 20));
-			uboStump[i].amb = .7f; uboStump[i].gamma = 180.0f; uboStump[i].sColor = glm::vec3(1.0f);
-			uboStump[i].mvpMat = ViewPrj * GWorld;
-			uboStump[i].mMat = GWorld;
-			uboStump[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSStump[i].map(currentImage, &uboStump[i], sizeof(uboStump[i]), 0);
+			SetUboDs(currentImage, uboStump, DSStump, i);
 		}
 	}
 
@@ -838,11 +853,7 @@ protected:
 		for (int i = 0; i < numOfClouds; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(cloudPositions[i].x, cloudPositions[i].z, cloudPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(cloudRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(cloudScales[i] * mapSize / 20));
-			uboCloud[i].amb = .7f; uboCloud[i].gamma = 180.0f; uboCloud[i].sColor = glm::vec3(1.0f);
-			uboCloud[i].mvpMat = ViewPrj * GWorld;
-			uboCloud[i].mMat = GWorld;
-			uboCloud[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSCloud[i].map(currentImage, &uboCloud[i], sizeof(uboCloud[i]), 0);
+			SetUboDs(currentImage, uboCloud, DSCloud, i);
 		}
 	}
 
@@ -851,11 +862,7 @@ protected:
 		for (int i = 0; i < numOfRocks; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(rockPositions[i].x, 0, rockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(rockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(rockScales[i] * mapSize / 20));
-			uboRock[i].amb = .7f; uboRock[i].gamma = 180.0f; uboRock[i].sColor = glm::vec3(1.0f);
-			uboRock[i].mvpMat = ViewPrj * GWorld;
-			uboRock[i].mMat = GWorld;
-			uboRock[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSRock[i].map(currentImage, &uboRock[i], sizeof(uboRock[i]), 0);
+			SetUboDs(currentImage, uboRock, DSRock, i);
 		}
 	}
 
@@ -864,11 +871,7 @@ protected:
 		for (int i = 0; i < numOfTrees; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(treePositions[i].x, 0, treePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(treeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(treeScales[i] * mapSize / 20));
-			uboTree[i].amb = .7f; uboTree[i].gamma = 180.0f; uboTree[i].sColor = glm::vec3(1.0f);
-			uboTree[i].mvpMat = ViewPrj * GWorld;
-			uboTree[i].mMat = GWorld;
-			uboTree[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSTree[i].map(currentImage, &uboTree[i], sizeof(uboTree[i]), 0);
+			SetUboDs(currentImage, uboTree, DSTree, i);
 		}
 	}
 
@@ -877,11 +880,7 @@ protected:
 		for (int i = 0; i < numOfTrees1; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree1Positions[i].x, 0, tree1Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree1Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree1Scales[i] * mapSize / 20));
-			uboTree1[i].amb = .7f; uboTree1[i].gamma = 180.0f; uboTree1[i].sColor = glm::vec3(1.0f);
-			uboTree1[i].mvpMat = ViewPrj * GWorld;
-			uboTree1[i].mMat = GWorld;
-			uboTree1[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSTree1[i].map(currentImage, &uboTree1[i], sizeof(uboTree1[i]), 0);
+			SetUboDs(currentImage, uboTree1, DSTree1, i);
 		}
 	}
 
@@ -890,11 +889,7 @@ protected:
 		for (int i = 0; i < numOfTrees2; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree2Positions[i].x, 0, tree2Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree2Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree2Scales[i] * mapSize / 20));
-			uboTree2[i].amb = .7f; uboTree2[i].gamma = 180.0f; uboTree2[i].sColor = glm::vec3(1.0f);
-			uboTree2[i].mvpMat = ViewPrj * GWorld;
-			uboTree2[i].mMat = GWorld;
-			uboTree2[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSTree2[i].map(currentImage, &uboTree2[i], sizeof(uboTree2[i]), 0);
+			SetUboDs(currentImage, uboTree2, DSTree2, i);
 		}
 	}
 
@@ -903,11 +898,7 @@ protected:
 		for (int i = 0; i < numOfTrees3; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree3Positions[i].x, 0, tree3Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree3Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree3Scales[i] * mapSize / 20));
-			uboTree3[i].amb = .7f; uboTree3[i].gamma = 180.0f; uboTree3[i].sColor = glm::vec3(1.0f);
-			uboTree3[i].mvpMat = ViewPrj * GWorld;
-			uboTree3[i].mMat = GWorld;
-			uboTree3[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSTree3[i].map(currentImage, &uboTree3[i], sizeof(uboTree3[i]), 0);
+			SetUboDs(currentImage, uboTree3, DSTree3, i);
 		}
 	}
 
@@ -916,15 +907,26 @@ protected:
 		for (int i = 0; i < numOfTrees4; i++)
 		{
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree4Positions[i].x, 0, tree4Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree4Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree4Scales[i] * mapSize / 20));
-			uboTree4[i].amb = .7f; uboTree4[i].gamma = 180.0f; uboTree4[i].sColor = glm::vec3(1.0f);
-			uboTree4[i].mvpMat = ViewPrj * GWorld;
-			uboTree4[i].mMat = GWorld;
-			uboTree4[i].nMat = glm::inverse(glm::transpose(GWorld));
-			DSTree4[i].map(currentImage, &uboTree4[i], sizeof(uboTree4[i]), 0);
+			SetUboDs(currentImage, uboTree4, DSTree4, i);
 		}
 	}
 
-	void RenderItems(uint32_t currentImage) {}
+	void RenderItems(uint32_t currentImage) {
+		for (int i = 0; i < numOfItems; i++)
+		{
+			GWorld = glm::translate(glm::mat4(1), glm::vec3(itemPositions[i].x, 0, itemPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(itemRotations[i]), glm::vec3(0, 1, 0));
+			SetUboDs(currentImage, uboItem, DSItem, i);
+		}
+	}
+
+	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float amb = 1.0f, float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f))
+	{
+		ubo[index].amb = amb; ubo[index].gamma = gamma; ubo[index].sColor = sColor;
+		ubo[index].mvpMat = ViewPrj * GWorld;
+		ubo[index].mMat = GWorld;
+		ubo[index].nMat = glm::inverse(glm::transpose(GWorld));
+		DS[index].map(currentImage, &ubo[index], sizeof(ubo[index]), 0);
+	}
 
 	void CalculateEnvironmentObjectsPositionsAndRotations()
 	{
@@ -932,9 +934,7 @@ protected:
 		// Plants
 		for (int i = 0; i < numOfPlants; i++)
 		{
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations();
 			plantPositions[i] = { randX, randY };
 			plantRotations[i] = randRot;
 		}
@@ -942,9 +942,7 @@ protected:
 		// Flowers
 		for (int i = 0; i < numOfFlowers; i++)
 		{
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations();
 			flowerPositions[i] = { randX, randY };
 			flowerRotations[i] = randRot;
 		}
@@ -972,9 +970,7 @@ protected:
 		// SmallRocks
 		for (int i = 0; i < numOfSmallRocks; i++)
 		{
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations();
 			smallRockPositions[i] = { randX, randY };
 			smallRockRotations[i] = randRot;
 		}
@@ -983,9 +979,7 @@ protected:
 		for (int i = 0; i < numOfStumps; i++)
 		{
 			stumpScales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			stumpPositions[i] = { randX, randY };
 			stumpRotations[i] = randRot;
 			AddCollisionPoint(stumpPositions[i], stumpThreshold + (stumpScales[i] - 0.2f) * stumpThresholdCoefficient);
@@ -995,9 +989,7 @@ protected:
 		for (int i = 0; i < numOfClouds; i++)
 		{
 			cloudScales[i] = (float)rand() / RAND_MAX / 6 + 0.15;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 - mountainThreshold , mapSize / 2 + mountainThreshold);
 			randZ = (rand() < RAND_MAX / 2) ? mapSize / 3 : mapSize / 3 + 6;
 			cloudPositions[i] = { randX, randY, randZ };
 			cloudRotations[i] = randRot;
@@ -1007,9 +999,7 @@ protected:
 		for (int i = 0; i < numOfRocks; i++)
 		{
 			rockScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			rockPositions[i] = { randX, randY };
 			rockRotations[i] = randRot;
 			AddCollisionPoint(rockPositions[i], rockThreshold + (rockScales[i] - 0.05f) * rockThresholdCoefficient);
@@ -1019,9 +1009,7 @@ protected:
 		for (int i = 0; i < numOfTrees; i++)
 		{
 			treeScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			treePositions[i] = { randX, randY };
 			treeRotations[i] = randRot;
 			AddCollisionPoint(treePositions[i], treeThreshold + (treeScales[i] - 0.05f) * treeThresholdCoefficient);
@@ -1031,9 +1019,7 @@ protected:
 		for (int i = 0; i < numOfTrees1; i++)
 		{
 			tree1Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			tree1Positions[i] = { randX, randY };
 			tree1Rotations[i] = randRot;
 			AddCollisionPoint(tree1Positions[i], treeThreshold + (tree1Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1043,9 +1029,7 @@ protected:
 		for (int i = 0; i < numOfTrees2; i++)
 		{
 			tree2Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			tree2Positions[i] = { randX, randY };
 			tree2Rotations[i] = randRot;
 			AddCollisionPoint(tree2Positions[i], treeThreshold + (tree2Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1055,9 +1039,7 @@ protected:
 		for (int i = 0; i < numOfTrees3; i++)
 		{
 			tree3Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			tree3Positions[i] = { randX, randY };
 			tree3Rotations[i] = randRot;
 			AddCollisionPoint(tree3Positions[i], treeThreshold + (tree3Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1067,13 +1049,63 @@ protected:
 		for (int i = 0; i < numOfTrees4; i++)
 		{
 			tree4Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			randX = rand() % (mapSize - 1) - (mapSize / 2);
-			randY = rand() % (mapSize - 1) - (mapSize / 2);
-			randRot = rand() % (360 + 1);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
 			tree4Positions[i] = { randX, randY };
 			tree4Rotations[i] = randRot;
 			AddCollisionPoint(tree4Positions[i], treeThreshold + (tree4Scales[i] - 0.2f) * treeThresholdCoefficient);
 		}
+
+		// Items
+		for (int i = 0; i < numOfItems; i++)
+		{
+			// check item position not to go under another object
+			CalculateItemsPosition();
+			std::cout << randX << "=" << randY << " & ";
+			itemPositions[i] = { randX, randY };
+			itemRotations[i] = randRot;
+		}
+	}
+
+	void CalculateItemsPosition()
+	{
+		// check item position not to go under another object
+		bool overlap = false;
+		while (true)
+		{
+			overlap = false;
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold + 1, mapSize / 2 - mountainThreshold - 1);
+			CheckItemPositionOverlap(numOfStumps, stumpThreshold, stumpThresholdCoefficient, stumpPositions, stumpScales, overlap);
+			CheckItemPositionOverlap(numOfRocks, rockThreshold, rockThresholdCoefficient, rockPositions, rockScales, overlap);
+			CheckItemPositionOverlap(numOfTrees, treeThreshold, treeThresholdCoefficient, treePositions, treeScales, overlap);
+			CheckItemPositionOverlap(numOfTrees1, treeThreshold, treeThresholdCoefficient, tree1Positions, tree1Scales, overlap);
+			CheckItemPositionOverlap(numOfTrees2, treeThreshold, treeThresholdCoefficient, tree2Positions, tree2Scales, overlap);
+			CheckItemPositionOverlap(numOfTrees3, treeThreshold, treeThresholdCoefficient, tree3Positions, tree3Scales, overlap);
+			CheckItemPositionOverlap(numOfTrees4, treeThreshold, treeThresholdCoefficient, tree4Positions, tree4Scales, overlap);
+			if (!overlap)
+				break;
+		}
+	}
+
+	void CheckItemPositionOverlap(int numOfObjects, float objectThreshold, float objectThresholdCoefficient, glm::vec2 objectPositions[], float objectScales[], bool& overlap)
+	{
+		float threshold = 0;
+		for (int i = 0; i < numOfObjects; i++)
+		{
+			threshold = objectThreshold + (objectScales[i] - 0.2f) * objectThresholdCoefficient;
+			if (overlap || ((randX < objectPositions[i].x + threshold && randX > objectPositions[i].x - threshold) &&
+				(randY < objectPositions[i].y + threshold && randY > objectPositions[i].y - threshold)))
+			{
+				overlap = true;
+				break;
+			}
+		}
+	}
+
+	void CalculateRandomPositionsRotations(int start = -mapSize / 2 + 1, int end = mapSize / 2 - 1)
+	{
+		randX = rand() % (end - start + 1) + start;
+		randY = rand() % (end - start + 1) + start;
+		randRot = rand() % (360 + 1);
 	}
 };
 
