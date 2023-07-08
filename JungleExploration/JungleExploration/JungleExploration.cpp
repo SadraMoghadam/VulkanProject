@@ -1,14 +1,6 @@
 #include "Starter.hpp"
 #include "TextMaker.hpp"
 
-struct UniformBufferObject {
-	alignas(4) float amb;
-	alignas(4) float gamma;
-	alignas(16) glm::vec3 sColor;
-	alignas(16) glm::mat4 mvpMat;
-	alignas(16) glm::mat4 mMat;
-	alignas(16) glm::mat4 nMat;
-};
 
 struct GlobalUniformBufferObject
 {
@@ -18,11 +10,30 @@ struct GlobalUniformBufferObject
 	alignas(16) glm::vec3 eyePos;
 };
 
+struct UniformBufferObject {
+	alignas(4) float amb;
+	alignas(4) float gamma;
+	alignas(16) glm::vec3 sColor;
+	alignas(16) glm::mat4 mvpMat;
+	alignas(16) glm::mat4 mMat;
+	alignas(16) glm::mat4 nMat;
+};
+
+struct OverlayUniformBlock {
+	alignas(4) float visible;
+};
+
 struct VertexMesh
 {
 	glm::vec3 pos;
 	glm::vec3 norm;
 	glm::vec2 uv;
+};
+
+struct VertexOverlay 
+{
+	glm::vec2 pos;
+	glm::vec2 UV;
 };
 
 
@@ -33,10 +44,10 @@ class JungleExploration : public BaseProject
 protected:
 	// Constant Parameters
 	static const int mapSize = 50;
-	static const int numOfPlants = 200;
-	static const int numOfFlowers = 200;
+	static const int numOfPlants = 300;
+	static const int numOfFlowers = 300;
 	static const int numOfMountains = 7 * 4;
-	static const int numOfSmallRocks = 200;
+	static const int numOfSmallRocks = 300;
 	static const int numOfStumps = 15;
 	static const int numOfClouds = 15;
 	static const int numOfRocks = 15;
@@ -45,37 +56,40 @@ protected:
 	static const int numOfTrees2 = 10;
 	static const int numOfTrees3 = 10;
 	static const int numOfTrees4 = 10;
-	static const int numOfItems = 5;
+	static const int numOfItems = 2;
 	static const int numOfCollisions = numOfRocks + numOfStumps + numOfTrees * 5;
 
 	// Descriptor Set Layouts
-	DescriptorSetLayout DSLGubo, DSLToon, DSLToonBlinn;
+	DescriptorSetLayout DSLGubo, DSLToon, DSLToonBlinn, DSLOverlay;
 
 	// Vertex formats
-	VertexDescriptor VMesh;
+	VertexDescriptor VMesh, VOverlay;
 
 	// Pipelines
-	Pipeline PToon, PToonBlinn;
+	Pipeline PToon, PToonBlinn, POverlay;
 
 	// Models
 	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock, 
 		MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4, MItem;
+	Model<VertexOverlay> MStartPanel, MEndPanel;
 
 	// Textures
-	Texture TCharacter, TGround, TEnv, TEnv2, TItem;
+	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TStartPanel, TEndPanel;
 
 	// Descriptor sets
 	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], 
 		DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps], 
 		DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1], 
-		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems];
+		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems], 
+		DSStartPanel, DSEndPanel;
 
 	// Uniform Blocks
+	GlobalUniformBufferObject gubo;
 	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], 
 		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps], 
 		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1], 
 		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems];
-	GlobalUniformBufferObject gubo;
+	OverlayUniformBlock uboStartPanel, uboEndPanel;
 
 	// Text
 	TextMaker txt;
@@ -87,7 +101,8 @@ protected:
 	};
 
 	// Other Parameters
-	int currentScene = 1;
+	int gameState = 1;
+	int currentScene = 0;
 	float Ar;
 	float yaw = 0, pitch = .3f, roll = 0;
 	glm::mat4 World, ViewPrj, GWorld, ViewPrjOld;
@@ -97,8 +112,6 @@ protected:
 	glm::vec3 realNormX = { 1, 0, 0 };
 	glm::vec3 realNormY = { 0, 1, 0 };
 	glm::vec3 realNormZ = { 0, 0, 1 };
-	VkCommandBuffer commandBuffer;
-	int currentImage;
 
 	// Environment Parameters
 	float randX, randY, randRot, randZ;
@@ -178,9 +191,9 @@ protected:
 
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
+		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
-		texturesInPool = 5 + 1;
+		texturesInPool = 7 + 1;
 		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
 	}
@@ -189,6 +202,9 @@ protected:
 	{
 		/* TODO */
 		// Initializing Descriptor Set Layouts
+		DSLGubo.init(this, {
+			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}
+			});
 		DSLToon.init(this, {
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
 			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
@@ -197,8 +213,9 @@ protected:
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
 			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
 			});
-		DSLGubo.init(this, {
-			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}
+		DSLOverlay.init(this, {
+			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
+			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
 			});
 
 		// Initializing Vertex Descriptor
@@ -212,10 +229,20 @@ protected:
 				{0, 2, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexMesh, uv),
 					   sizeof(glm::vec2), UV}
 			});
+		VOverlay.init(this, {
+				  {0, sizeof(VertexOverlay), VK_VERTEX_INPUT_RATE_VERTEX}
+			}, {
+			  {0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexOverlay, pos),
+					 sizeof(glm::vec2), OTHER},
+			  {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(VertexOverlay, UV),
+					 sizeof(glm::vec2), UV}
+			});
 
 		// Initializing Pipelines
 		PToon.init(this, &VMesh, "shaders/ToonVert.spv", "shaders/ToonFrag.spv", { &DSLGubo, &DSLToon });
 		PToonBlinn.init(this, &VMesh, "shaders/ToonBlinnVert.spv", "shaders/ToonBlinnFrag.spv", { &DSLGubo, &DSLToonBlinn });
+		POverlay.init(this, &VOverlay, "shaders/OverlayVert.spv", "shaders/OverlayFrag.spv", { &DSLOverlay });
+		POverlay.setAdvancedFeatures(VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, false);
 
 		// Initializing Models
 		MCharacter.init(this, &VMesh, "Models/character.obj", OBJ);
@@ -233,6 +260,15 @@ protected:
 		MTree3.init(this, &VMesh, "Models/tree3.obj", OBJ);
 		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
 		MItem.init(this, &VMesh, "Models/red.obj", OBJ);
+		// Overlay Models
+		MStartPanel.vertices = { {{-1.0f, -1.0f}, {0.0f, 0.0f}}, {{-1.0f, 1.0f}, {0.0f,1.0f}},
+						 {{ 1.0f,-1.0f}, {1.0f,0.0f}}, {{ 1.0f, 1.0f}, {1.0f,1.0f}} };
+		MStartPanel.indices = { 0, 1, 2,    1, 2, 3 };
+		MStartPanel.initMesh(this, &VOverlay);
+		MEndPanel.vertices = { {{-1.0f, -1.0f}, {0.0f, 0.0f}}, {{-1.0f, 1.0f}, {0.0f,1.0f}},
+						 {{ 1.0f,-1.0f}, {1.0f,0.0f}}, {{ 1.0f, 1.0f}, {1.0f,1.0f}} };
+		MEndPanel.indices = { 0, 1, 2,    1, 2, 3 };
+		MEndPanel.initMesh(this, &VOverlay);
 
 		// Initializing Textures
 		TCharacter.init(this, "textures/Wood.png");
@@ -240,6 +276,8 @@ protected:
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		TItem.init(this, "textures/Wood.png");
+		TStartPanel.init(this, "textures/SplashScreen.png");
+		TEndPanel.init(this, "textures/Wood.png");
 
 		txt.init(this, &text, -0.95, -0.95, 2.0 / 1920.0, 2.0 / 1080.0);
 
@@ -253,6 +291,7 @@ protected:
 		// Creating Pipelines
 		PToon.create();
 		PToonBlinn.create();
+		POverlay.create();
 
 		// Defining the Descriptor Sets
 		DSGubo.init(this, &DSLGubo, {
@@ -360,6 +399,14 @@ protected:
 					{1, TEXTURE, 0, &TItem},
 				});
 		}
+		DSStartPanel.init(this, &DSLOverlay, {
+					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
+					{1, TEXTURE, 0, &TStartPanel}
+			});
+		DSEndPanel.init(this, &DSLOverlay, {
+					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
+					{1, TEXTURE, 0, &TEndPanel}
+			});
 
 		txt.pipelinesAndDescriptorSetsInit();
 	}
@@ -404,6 +451,8 @@ protected:
 			DSTree4[i].cleanup();
 		for (int i = 0; i < numOfItems; i++)
 			DSItem[i].cleanup();
+		DSStartPanel.cleanup();
+		DSEndPanel.cleanup();
 
 		txt.pipelinesAndDescriptorSetsCleanup();
 	}
@@ -417,6 +466,8 @@ protected:
 		TEnv.cleanup();
 		TEnv2.cleanup();
 		TItem.cleanup();
+		TStartPanel.cleanup();
+		TEndPanel.cleanup();
 
 		// Cleanup Models
 		MCharacter.cleanup();
@@ -434,15 +485,19 @@ protected:
 		MTree3.cleanup();
 		MTree4.cleanup();
 		MItem.cleanup();
+		MStartPanel.cleanup();
+		MEndPanel.cleanup();
 
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
 		DSLToon.cleanup();
 		DSLToonBlinn.cleanup();
+		DSLOverlay.cleanup();
 
 		// Destroying the Pipeline
 		PToon.destroy();
 		PToonBlinn.destroy();
+		POverlay.destroy();
 
 		txt.localCleanup();
 	}
@@ -450,9 +505,6 @@ protected:
 	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage)
 	{
 		/* TODO */
-		this->commandBuffer = commandBuffer;
-		this->currentImage = currentImage;
-
 		// Set Gubo
 		DSGubo.bind(commandBuffer, PToon, 0, currentImage);
 
@@ -568,13 +620,24 @@ protected:
 				static_cast<uint32_t>(MGround.indices.size()), 1, 0, 0, 0);
 		}
 
-		txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
+		// Overlays
+		POverlay.bind(commandBuffer);
+		MStartPanel.bind(commandBuffer);
+		DSStartPanel.bind(commandBuffer, POverlay, 0, currentImage);
+		vkCmdDrawIndexed(commandBuffer,
+			static_cast<uint32_t>(MStartPanel.indices.size()), 1, 0, 0, 0);
+
+		MEndPanel.bind(commandBuffer);
+		DSEndPanel.bind(commandBuffer, POverlay, 0, currentImage);
+		vkCmdDrawIndexed(commandBuffer,
+			static_cast<uint32_t>(MEndPanel.indices.size()), 1, 0, 0, 0);
+
+		txt.populateCommandBuffer(commandBuffer, currentImage, gameState, currentScene);
 	}
 
 	void updateUniformBuffer(uint32_t currentImage)
 	{
 		/* TODO */
-		this->currentImage = currentImage;
 		static bool debounce = false;
 		static int curDebounce = 0;
 
@@ -583,11 +646,28 @@ protected:
 			glfwSetWindowShouldClose(window, GL_TRUE);
 		}
 
+
+		if (currentScene == 0 && glfwGetKey(window, GLFW_KEY_ENTER))
+		{
+			currentScene++;
+			RebuildPipeline();
+		}
+
+		uboStartPanel.visible = (currentScene == 0) ? 1.0f : 0.0f;
+		DSStartPanel.map(currentImage, &uboStartPanel, sizeof(uboStartPanel), 0);
+
+		uboEndPanel.visible = (currentScene == 2) ? 1.0f : 0.0f;
+		DSEndPanel.map(currentImage, &uboEndPanel, sizeof(uboEndPanel), 0);
+
+		if (currentScene != 1)
+			return;
+
+
 		if (glfwGetKey(window, GLFW_KEY_M)) {
 			if (!debounce) {
 				debounce = true;
 				curDebounce = GLFW_KEY_M;
-				currentScene = (currentScene + 1) % 2;
+				gameState = (gameState + 1) % 2;
 				//std::cout << "Scene : " << currentScene << "\n";
 				RebuildPipeline();
 			}
@@ -599,7 +679,7 @@ protected:
 			}
 		}
 
-		switch (currentScene)
+		switch (gameState)
 		{
 		case 0:
 			Spectate();
@@ -607,6 +687,9 @@ protected:
 		case 1:
 			PlayerController();
 			break;
+		default:
+			break;
+
 		}
 
 		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
@@ -739,17 +822,32 @@ protected:
 					//text =
 					//{
 					//	{1, {"Spectate", "", "", ""}, 0, 0},
-					//	{3, {"Main Game", "Items", std::to_string(2), ""}, 0, 0}
+					//	{3, {"Main Game", "", "Total Items = " + std::to_string(1), ""}, 0, 0}
 					//};
+					//txt.updateText(&text);
 					//txt.localCleanup();
 					//txt.pipelinesAndDescriptorSetsCleanup();
 					//txt.init(this, &text);
 					//txt.pipelinesAndDescriptorSetsInit();
 					//txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
+					//RebuildPipeline();
 					isItemPicked[i] = true;
+					CheckEnding();
+					break;
 				}
 			}
 		}
+	}
+
+	void CheckEnding()
+	{
+		for (int i = 0; i < numOfItems; i++)
+		{
+			if (!isItemPicked[i])
+				return;
+		}
+		currentScene = 2;
+		RebuildPipeline();
 	}
 
 	void MapBorderCollisionHandler(glm::vec3& pos, glm::vec3& nextPos)
@@ -830,7 +928,7 @@ protected:
 
 	void RenderCharacter(uint32_t currentImage)
 	{
-		glm::mat4 coefficient = currentScene == 0 ? glm::mat4(1) : World;
+		glm::mat4 coefficient = gameState == 0 ? glm::mat4(1) : World;
 		GWorld = coefficient * glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.y), realNormY);
 		uboCharacter.amb = 1.0f; uboCharacter.gamma = 180.0f; uboCharacter.sColor = glm::vec3(1.0f);
 		uboCharacter.mvpMat = ViewPrj * GWorld;

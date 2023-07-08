@@ -65,6 +65,11 @@ struct TextMaker {
 		createTextModelAndTexture();
 	}
 
+	void updateText(std::vector<SingleText>* _Texts)
+	{
+		Texts = _Texts;
+	}
+
 
 	void createTextDescriptorSetAndVertexLayout() {
 		VD.init(BP, {
@@ -225,14 +230,30 @@ struct TextMaker {
 		P.destroy();
 	}
 
-	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage, int curText = 0) {
-		P.bind(commandBuffer);
-		M.bind(commandBuffer);
-		DS.bind(commandBuffer, P, 0, currentImage);
+	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage, int curText = 0, int currentScene = 0) {
+		if (currentScene == 1)
+		{
+			P.bind(commandBuffer);
+			M.bind(commandBuffer);
+			DS.bind(commandBuffer, P, 0, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>((*Texts)[curText].len), 1, static_cast<uint32_t>((*Texts)[curText].start), 0, 0);
+		}
+	}
 
-		vkCmdDrawIndexed(commandBuffer,
-			static_cast<uint32_t>((*Texts)[curText].len), 1, static_cast<uint32_t>((*Texts)[curText].start), 0, 0);
+	void manualPopulateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage, std::string currentText = "", int currentScene = 0) {
+		//std::cout << currentScene << "---&---" << curText;
+		if (currentScene == 1)
+		{
+			P.bind(commandBuffer);
+			M.bind(commandBuffer);
+			DS.bind(commandBuffer, P, 0, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(currentText.length()), 1, 0, 0, 0);
+		}
 
 	}
+
+
 };
 
