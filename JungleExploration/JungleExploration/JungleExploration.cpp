@@ -126,6 +126,7 @@ protected:
 	float tree4Scales[numOfTrees4];
 	glm::vec2 itemPositions[numOfItems];
 	float itemRotations[numOfItems];
+	bool isItemPicked[numOfItems];
 
 	//Jump params
 	bool isJumping = FALSE;
@@ -145,6 +146,7 @@ protected:
 	float stumpThresholdCoefficient = 1;
 	float treeThreshold = 0.3f;
 	float treeThresholdCoefficient = 1;
+	float itemThreshold = 1.0f;
 
 
 	void setWindowParameters()
@@ -578,7 +580,7 @@ protected:
 			Spectate();
 			break;
 		case 1:
-			PlayerMovement();
+			PlayerController();
 		}
 
 		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
@@ -600,7 +602,7 @@ protected:
 		}
 	}
 
-	void PlayerMovement()
+	void PlayerController()
 	{
 		const float FOVy = glm::radians(45.0f);
 		const float nearPlane = 0.1f;
@@ -623,8 +625,10 @@ protected:
 		glm::vec3 m = glm::vec3(0.0f, static_cast<int>(isJumping), 0.0f), r = glm::vec3(0.0f);
 		bool fire = false;
 		getSixAxis(deltaT, m, r, fire);
-		PlayerJump(deltaT, m);
 
+		#pragma region PlayerMovementRegion
+
+		PlayerJump(deltaT, m);
 		static glm::vec3 pos = startingPosition;
 		glm::vec3 nextPos = pos;
 
@@ -653,7 +657,7 @@ protected:
 			pos += uz * MOVE_SPEED * m.z * deltaT;
 			//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
 			//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
-			std::cout << pos.x << "=" << pos.z << " & ";
+			//std::cout << pos.x << "=" << pos.z << " & ";
 		}
 		pos += uy * MOVE_SPEED * m.y * deltaT;
 
@@ -662,6 +666,12 @@ protected:
 			VJump = VJumpIni;
 		}
 		isCollision = false;
+
+		#pragma endregion
+
+		PickItem(pos);
+
+		#pragma region CameraMovementRegion
 
 		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 		if (pitch <= minPitch)
@@ -686,8 +696,25 @@ protected:
 			ViewPrjOld = ViewPrj;
 		ViewPrj = ViewPrjOld * exp(-lambda * deltaT) + ViewPrj * (1 - exp(-lambda * deltaT));
 		ViewPrjOld = ViewPrj;
+		#pragma endregion
+
+
 	}
 
+	void PickItem(glm::vec3 pos)
+	{
+		for (int i = 0; i < numOfItems; i++)
+		{
+			if ((pos.x < itemPositions[i].x + itemThreshold && pos.x > itemPositions[i].x - itemThreshold) &&
+				(pos.z < itemPositions[i].y + itemThreshold && pos.z > itemPositions[i].y - itemThreshold))
+			{
+				if (glfwGetKey(window, GLFW_KEY_ENTER)) 
+				{
+					isItemPicked[i] = true;
+				}
+			}
+		}
+	}
 
 	void MapBorderCollisionHandler(glm::vec3& pos, glm::vec3& nextPos)
 	{
@@ -911,9 +938,16 @@ protected:
 		}
 	}
 
-	void RenderItems(uint32_t currentImage) {
+	void RenderItems(uint32_t currentImage) 
+	{
 		for (int i = 0; i < numOfItems; i++)
 		{
+			if (isItemPicked[i])
+			{
+				GWorld = glm::translate(glm::mat4(1), glm::vec3(mapSize * 4, 0, mapSize * 4));
+				SetUboDs(currentImage, uboItem, DSItem, i);
+				continue;
+			}
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(itemPositions[i].x, 0, itemPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(itemRotations[i]), glm::vec3(0, 1, 0));
 			SetUboDs(currentImage, uboItem, DSItem, i);
 		}
@@ -979,7 +1013,7 @@ protected:
 		for (int i = 0; i < numOfStumps; i++)
 		{
 			stumpScales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			stumpPositions[i] = { randX, randY };
 			stumpRotations[i] = randRot;
 			AddCollisionPoint(stumpPositions[i], stumpThreshold + (stumpScales[i] - 0.2f) * stumpThresholdCoefficient);
@@ -999,7 +1033,7 @@ protected:
 		for (int i = 0; i < numOfRocks; i++)
 		{
 			rockScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			rockPositions[i] = { randX, randY };
 			rockRotations[i] = randRot;
 			AddCollisionPoint(rockPositions[i], rockThreshold + (rockScales[i] - 0.05f) * rockThresholdCoefficient);
@@ -1009,7 +1043,7 @@ protected:
 		for (int i = 0; i < numOfTrees; i++)
 		{
 			treeScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			treePositions[i] = { randX, randY };
 			treeRotations[i] = randRot;
 			AddCollisionPoint(treePositions[i], treeThreshold + (treeScales[i] - 0.05f) * treeThresholdCoefficient);
@@ -1019,7 +1053,7 @@ protected:
 		for (int i = 0; i < numOfTrees1; i++)
 		{
 			tree1Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			tree1Positions[i] = { randX, randY };
 			tree1Rotations[i] = randRot;
 			AddCollisionPoint(tree1Positions[i], treeThreshold + (tree1Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1029,7 +1063,7 @@ protected:
 		for (int i = 0; i < numOfTrees2; i++)
 		{
 			tree2Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			tree2Positions[i] = { randX, randY };
 			tree2Rotations[i] = randRot;
 			AddCollisionPoint(tree2Positions[i], treeThreshold + (tree2Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1039,7 +1073,7 @@ protected:
 		for (int i = 0; i < numOfTrees3; i++)
 		{
 			tree3Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			tree3Positions[i] = { randX, randY };
 			tree3Rotations[i] = randRot;
 			AddCollisionPoint(tree3Positions[i], treeThreshold + (tree3Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1049,7 +1083,7 @@ protected:
 		for (int i = 0; i < numOfTrees4; i++)
 		{
 			tree4Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 			tree4Positions[i] = { randX, randY };
 			tree4Rotations[i] = randRot;
 			AddCollisionPoint(tree4Positions[i], treeThreshold + (tree4Scales[i] - 0.2f) * treeThresholdCoefficient);
@@ -1101,10 +1135,25 @@ protected:
 		}
 	}
 
-	void CalculateRandomPositionsRotations(int start = -mapSize / 2 + 1, int end = mapSize / 2 - 1)
+	void CalculateRandomPositionsRotations(int start = -mapSize / 2 + 1, int end = mapSize / 2 - 1, bool checkCenter = false)
 	{
 		randX = rand() % (end - start + 1) + start;
 		randY = rand() % (end - start + 1) + start;
+		if (checkCenter)
+		{
+			while (true)
+			{
+				if (randX < 1 && randX > -1 && randY < 1 && randY > -1)
+				{
+					randX = rand() % (end - start + 1) + start;
+					randY = rand() % (end - start + 1) + start;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
 		randRot = rand() % (360 + 1);
 	}
 };
