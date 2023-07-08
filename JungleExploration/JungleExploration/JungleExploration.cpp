@@ -25,6 +25,7 @@ struct VertexMesh
 	glm::vec2 uv;
 };
 
+
 //void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
 
 class JungleExploration : public BaseProject
@@ -76,6 +77,15 @@ protected:
 		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems];
 	GlobalUniformBufferObject gubo;
 
+	// Text
+	TextMaker txt;
+	int numOfItemsInMap = numOfItems;
+	std::vector<SingleText> text =
+	{
+		{1, {"Spectate", "", "", ""}, 0, 0},
+		{3, {"Main Game", "", "Total Items = " + std::to_string(numOfItemsInMap), ""}, 0, 0}
+	};
+
 	// Other Parameters
 	int currentScene = 1;
 	float Ar;
@@ -87,6 +97,8 @@ protected:
 	glm::vec3 realNormX = { 1, 0, 0 };
 	glm::vec3 realNormY = { 0, 1, 0 };
 	glm::vec3 realNormZ = { 0, 0, 1 };
+	VkCommandBuffer commandBuffer;
+	int currentImage;
 
 	// Environment Parameters
 	float randX, randY, randRot, randZ;
@@ -166,11 +178,11 @@ protected:
 
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + 
-			numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
-		texturesInPool = 5;
-		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 +
-			numOfSmallRocks * 2 + numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
+		uniformBlocksInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
+		texturesInPool = 5 + 1;
+		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
 	}
 
 	void localInit()
@@ -228,6 +240,9 @@ protected:
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		TItem.init(this, "textures/Wood.png");
+
+		txt.init(this, &text, -0.95, -0.95, 2.0 / 1920.0, 2.0 / 1080.0);
+
 		// Init local variables
 		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
@@ -346,6 +361,7 @@ protected:
 				});
 		}
 
+		txt.pipelinesAndDescriptorSetsInit();
 	}
 
 	void pipelinesAndDescriptorSetsCleanup()
@@ -389,6 +405,7 @@ protected:
 		for (int i = 0; i < numOfItems; i++)
 			DSItem[i].cleanup();
 
+		txt.pipelinesAndDescriptorSetsCleanup();
 	}
 
 	void localCleanup()
@@ -426,11 +443,16 @@ protected:
 		// Destroying the Pipeline
 		PToon.destroy();
 		PToonBlinn.destroy();
+
+		txt.localCleanup();
 	}
 
 	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage)
 	{
 		/* TODO */
+		this->commandBuffer = commandBuffer;
+		this->currentImage = currentImage;
+
 		// Set Gubo
 		DSGubo.bind(commandBuffer, PToon, 0, currentImage);
 
@@ -545,11 +567,14 @@ protected:
 			vkCmdDrawIndexed(commandBuffer,
 				static_cast<uint32_t>(MGround.indices.size()), 1, 0, 0, 0);
 		}
+
+		txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
 	}
 
 	void updateUniformBuffer(uint32_t currentImage)
 	{
 		/* TODO */
+		this->currentImage = currentImage;
 		static bool debounce = false;
 		static int curDebounce = 0;
 
@@ -581,6 +606,7 @@ protected:
 			break;
 		case 1:
 			PlayerController();
+			break;
 		}
 
 		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
@@ -710,6 +736,16 @@ protected:
 			{
 				if (glfwGetKey(window, GLFW_KEY_ENTER)) 
 				{
+					//text =
+					//{
+					//	{1, {"Spectate", "", "", ""}, 0, 0},
+					//	{3, {"Main Game", "Items", std::to_string(2), ""}, 0, 0}
+					//};
+					//txt.localCleanup();
+					//txt.pipelinesAndDescriptorSetsCleanup();
+					//txt.init(this, &text);
+					//txt.pipelinesAndDescriptorSetsInit();
+					//txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
 					isItemPicked[i] = true;
 				}
 			}
