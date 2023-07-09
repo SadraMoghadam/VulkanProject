@@ -24,42 +24,42 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1838,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2609,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(9,484): warning C4305: 'initializing': truncation from 'double' to 'const float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(112,1): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(282,1): warning C4305: 'argument': truncation from 'double' to 'float'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1101,13): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1121,53): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1122,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1149,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1150,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1150,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1159,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1160,85): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1160,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1161,20): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1169,49): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1170,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1170,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1179,49): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1180,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1180,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1189,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1190,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1190,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1199,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1200,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1200,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1209,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1210,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1210,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1219,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1220,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1220,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1244,108): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1244,71): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1274,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1275,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1282,41): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1283,41): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1291,20): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(283,1): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1108,13): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1128,53): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1129,34): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1156,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1157,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1157,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1166,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1167,85): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1167,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1168,20): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1176,49): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1177,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1177,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1186,49): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1187,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1187,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1196,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1197,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1197,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1206,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1207,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1207,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1216,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1217,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1217,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1226,50): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1227,84): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1227,51): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1251,108): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1251,71): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1281,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1282,38): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1289,41): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1290,41): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(1298,20): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
           with
           [
@@ -68,8 +68,8 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1993): message : while compiling class template member function 'void Model<VertexMesh>::loadModelOBJ(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2274): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelOBJ(std::string)' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2270): message : while compiling class template member function 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(248): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(72): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(249): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(73): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2101,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2061): message : while compiling class template member function 'void Model<VertexMesh>::loadModelGLTF(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2276): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelGLTF(std::string)' being compiled
@@ -77,8 +77,8 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2115,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2129,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   Generating code
-  1 of 7172 functions (<0.1%) were compiled, the rest were copied from previous compilation.
+  2 of 7172 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    23 functions had inline decision re-evaluated but remain unchanged
+    39 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   JungleExploration.vcxproj -> D:\Projects\VulkanProject\JungleExploration\x64\Release\JungleExploration.exe

@@ -11,6 +11,7 @@ struct GlobalUniformBufferObject
 };
 
 struct UniformBufferObject {
+	alignas(4) float visible;
 	alignas(4) float amb;
 	alignas(4) float gamma;
 	alignas(16) glm::vec3 sColor;
@@ -930,7 +931,10 @@ protected:
 	{
 		glm::mat4 coefficient = gameState == 0 ? glm::mat4(1) : World;
 		GWorld = coefficient * glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.y), realNormY);
-		uboCharacter.amb = 1.0f; uboCharacter.gamma = 180.0f; uboCharacter.sColor = glm::vec3(1.0f);
+		uboCharacter.visible = 1.0f;
+		uboCharacter.amb = 1.0f; 
+		uboCharacter.gamma = 180.0f; 
+		uboCharacter.sColor = glm::vec3(1.0f);
 		uboCharacter.mvpMat = ViewPrj * GWorld;
 		uboCharacter.mMat = GWorld;
 		uboCharacter.nMat = glm::inverse(glm::transpose(GWorld));
@@ -1078,18 +1082,21 @@ protected:
 		{
 			if (isItemPicked[i])
 			{
-				GWorld = glm::translate(glm::mat4(1), glm::vec3(mapSize * 4, 0, mapSize * 4));
-				SetUboDs(currentImage, uboItem, DSItem, i);
+				//GWorld = glm::translate(glm::mat4(1), glm::vec3(mapSize * 4, 0, mapSize * 4));
+				SetUboDs(currentImage, uboItem, DSItem, i, 0);
 				continue;
 			}
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(itemPositions[i].x, 0, itemPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(itemRotations[i]), glm::vec3(0, 1, 0));
-			SetUboDs(currentImage, uboItem, DSItem, i);
+			SetUboDs(currentImage, uboItem, DSItem, i, 1, 10, 180, {1, 0, 0});
 		}
 	}
 
-	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float amb = 1.0f, float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f))
+	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f))
 	{
-		ubo[index].amb = amb; ubo[index].gamma = gamma; ubo[index].sColor = sColor;
+		ubo[index].visible = visible;
+		ubo[index].amb = amb; 
+		ubo[index].gamma = gamma; 
+		ubo[index].sColor = sColor;
 		ubo[index].mvpMat = ViewPrj * GWorld;
 		ubo[index].mMat = GWorld;
 		ubo[index].nMat = glm::inverse(glm::transpose(GWorld));

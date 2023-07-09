@@ -15,6 +15,7 @@ layout(set = 0, binding = 0) uniform GlobalUniformBufferObject {
 } gubo;
 
 layout(set = 1, binding = 0) uniform UniformBufferObject {
+	float visible;
 	float amb;
 	float gamma;
 	vec3 sColor;
