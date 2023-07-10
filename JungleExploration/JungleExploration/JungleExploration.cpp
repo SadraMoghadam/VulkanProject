@@ -31,7 +31,7 @@ struct VertexMesh
 	glm::vec2 uv;
 };
 
-struct VertexOverlay 
+struct VertexOverlay
 {
 	glm::vec2 pos;
 	glm::vec2 UV;
@@ -70,7 +70,7 @@ protected:
 	Pipeline PToon, PToonBlinn, POverlay;
 
 	// Models
-	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock, 
+	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock,
 		MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4, MItem;
 	Model<VertexOverlay> MStartPanel, MEndPanel;
 
@@ -78,17 +78,17 @@ protected:
 	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TStartPanel, TEndPanel;
 
 	// Descriptor sets
-	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers], 
-		DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps], 
-		DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1], 
-		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems], 
+	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers],
+		DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps],
+		DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1],
+		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems],
 		DSStartPanel, DSEndPanel;
 
 	// Uniform Blocks
 	GlobalUniformBufferObject gubo;
-	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers], 
-		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps], 
-		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1], 
+	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers],
+		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps],
+		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1],
 		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems];
 	OverlayUniformBlock uboStartPanel, uboEndPanel;
 
@@ -109,7 +109,7 @@ protected:
 	glm::mat4 World, ViewPrj, GWorld, ViewPrjOld;
 	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
 	float camAlpha = 0.0f, camBeta = 0.0f;
-	glm::vec3 characterRotation = { 0.0f, 90.0f , 0.0f};
+	glm::vec3 characterRotation = { 0.0f, 90.0f , 0.0f };
 	glm::vec3 realNormX = { 1, 0, 0 };
 	glm::vec3 realNormY = { 0, 1, 0 };
 	glm::vec3 realNormZ = { 0, 0, 1 };
@@ -192,10 +192,10 @@ protected:
 
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
+		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
 		texturesInPool = 7 + 1;
-		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 + 
+		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
 	}
 
@@ -246,7 +246,9 @@ protected:
 		POverlay.setAdvancedFeatures(VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, false);
 
 		// Initializing Models
-		MCharacter.init(this, &VMesh, "Models/character.obj", OBJ);
+		//MCharacter.init(this, &VMesh, "Models/character.obj", OBJ);
+		createSphereMesh(MCharacter.vertices, MCharacter.indices);
+		MCharacter.initMesh(this, &VMesh);
 		MGround.init(this, &VMesh, "Models/ground.obj", OBJ);
 		MPlant.init(this, &VMesh, "Models/plant.obj", OBJ);
 		MFlower.init(this, &VMesh, "Models/flower.obj", OBJ);
@@ -736,7 +738,7 @@ protected:
 		bool fire = false;
 		getSixAxis(deltaT, m, r, fire);
 
-		#pragma region PlayerMovementRegion
+#pragma region PlayerMovementRegion
 
 		PlayerJump(deltaT, m);
 		static glm::vec3 pos = startingPosition;
@@ -761,12 +763,20 @@ protected:
 		MapBorderCollisionHandler(pos, nextPos);
 		CollisionChecker(nextPos);
 		//std::cout << uy.y;
+		if (m.x == 0)
+		{
+			characterRotation.x = 0;
+		}
+		else if (m.z == 0)
+		{
+			characterRotation.z = 0;
+		}
 		if (!isCollision)
 		{
 			pos += ux * MOVE_SPEED * m.x * deltaT;
 			pos += uz * MOVE_SPEED * m.z * deltaT;
-			//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
-			//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+			characterRotation += realNormX * 100.0f * MOVE_SPEED * m.x * deltaT;
+			characterRotation += realNormZ * 100.0f * MOVE_SPEED * m.z * deltaT;
 			//std::cout << pos.x << "=" << pos.z << " & ";
 		}
 		pos += uy * MOVE_SPEED * m.y * deltaT;
@@ -777,11 +787,11 @@ protected:
 		}
 		isCollision = false;
 
-		#pragma endregion
+#pragma endregion
 
 		PickItem(pos);
 
-		#pragma region CameraMovementRegion
+#pragma region CameraMovementRegion
 
 		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 		if (pitch <= minPitch)
@@ -806,7 +816,7 @@ protected:
 			ViewPrjOld = ViewPrj;
 		ViewPrj = ViewPrjOld * exp(-lambda * deltaT) + ViewPrj * (1 - exp(-lambda * deltaT));
 		ViewPrjOld = ViewPrj;
-		#pragma endregion
+#pragma endregion
 
 
 	}
@@ -818,7 +828,7 @@ protected:
 			if ((pos.x < itemPositions[i].x + itemThreshold && pos.x > itemPositions[i].x - itemThreshold) &&
 				(pos.z < itemPositions[i].y + itemThreshold && pos.z > itemPositions[i].y - itemThreshold))
 			{
-				if (glfwGetKey(window, GLFW_KEY_ENTER)) 
+				if (glfwGetKey(window, GLFW_KEY_ENTER))
 				{
 					//text =
 					//{
@@ -929,11 +939,18 @@ protected:
 
 	void RenderCharacter(uint32_t currentImage)
 	{
+		//std::cout << characterRotation.y;
 		glm::mat4 coefficient = gameState == 0 ? glm::mat4(1) : World;
-		GWorld = coefficient * glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.y), realNormY);
+		GWorld = coefficient * glm::translate(glm::mat4(1.0), glm::vec3(0, 0.2f, 0))
+			* glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.y), realNormY)
+			//* glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.z), realNormZ)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.x), realNormX)
+			* glm::rotate(glm::mat4(1.0f), glm::radians(-characterRotation.z), realNormZ)
+			//* glm::rotate(glm::mat4(1.0f), glm::radians(-characterRotation.x), realNormX)
+			;
 		uboCharacter.visible = 1.0f;
-		uboCharacter.amb = 1.0f; 
-		uboCharacter.gamma = 180.0f; 
+		uboCharacter.amb = 1.0f;
+		uboCharacter.gamma = 180.0f;
 		uboCharacter.sColor = glm::vec3(1.0f);
 		uboCharacter.mvpMat = ViewPrj * GWorld;
 		uboCharacter.mMat = GWorld;
@@ -1076,7 +1093,7 @@ protected:
 		}
 	}
 
-	void RenderItems(uint32_t currentImage) 
+	void RenderItems(uint32_t currentImage)
 	{
 		for (int i = 0; i < numOfItems; i++)
 		{
@@ -1087,15 +1104,15 @@ protected:
 				continue;
 			}
 			GWorld = glm::translate(glm::mat4(1), glm::vec3(itemPositions[i].x, 0, itemPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(itemRotations[i]), glm::vec3(0, 1, 0));
-			SetUboDs(currentImage, uboItem, DSItem, i, 1, 10, 180, {1, 0, 0});
+			SetUboDs(currentImage, uboItem, DSItem, i, 1, 10, 180, { 1, 0, 0 });
 		}
 	}
 
 	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f))
 	{
 		ubo[index].visible = visible;
-		ubo[index].amb = amb; 
-		ubo[index].gamma = gamma; 
+		ubo[index].amb = amb;
+		ubo[index].gamma = gamma;
 		ubo[index].sColor = sColor;
 		ubo[index].mvpMat = ViewPrj * GWorld;
 		ubo[index].mMat = GWorld;
@@ -1164,7 +1181,7 @@ protected:
 		for (int i = 0; i < numOfClouds; i++)
 		{
 			cloudScales[i] = (float)rand() / RAND_MAX / 6 + 0.15;
-			CalculateRandomPositionsRotations(-mapSize / 2 - mountainThreshold , mapSize / 2 + mountainThreshold);
+			CalculateRandomPositionsRotations(-mapSize / 2 - mountainThreshold, mapSize / 2 + mountainThreshold);
 			randZ = (rand() < RAND_MAX / 2) ? mapSize / 3 : mapSize / 3 + 6;
 			cloudPositions[i] = { randX, randY, randZ };
 			cloudRotations[i] = randRot;
@@ -1297,8 +1314,14 @@ protected:
 		}
 		randRot = rand() % (360 + 1);
 	}
+
+	void createBoxMesh(std::vector<VertexMesh>& vDef, std::vector<uint32_t>& vIdx);
+	void createSphereMesh(std::vector<VertexMesh>& vDef, std::vector<uint32_t>& vIdx);
+
 };
 
+
+#include "primGen.hpp"
 
 int main() {
 	JungleExploration app;
