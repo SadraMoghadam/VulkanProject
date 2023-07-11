@@ -34,10 +34,12 @@ const std::vector<FontDef> Fonts = { {73,{{0,0,0,0,0,0,21},{116,331,18,61,4,4,21
 {902,121,10,7,-3,-1,6},{842,0,15,14,-3,2,9},{842,111,14,17,-2,-1,9},{858,123,14,14,-3,2,8},{842,129,14,17,-3,-1,9},{873,0,14,14,-3,2,9},{888,138,10,16,-3,-1,5},{858,0,14,17,-3,2,9},{888,0,13,16,-2,-1,9},{914,0,8,16,-2,-1,4},{807,134,10,20,-4,-1,4},{888,17,13,16,-2,-1,8},{914,17,8,16,-2,-1,4},{768,89,18,13,-2,2,14},{873,141,13,13,-2,2,9},{873,15,14,14,-3,2,9},{858,18,14,17,-2,2,9},{858,36,14,17,-3,2,9},{902,107,10,13,-2,2,6},{873,30,14,14,-3,2,8},{902,90,10,16,-3,0,5},{888,51,13,14,-2,2,9},{873,45,14,13,-3,2,8},{789,85,17,13,-3,2,12},{873,59,14,13,-3,2,8},{858,54,14,17,-3,2,8},{873,73,14,13,-3,2,8},{888,79,12,20,-4,-1,6},{914,85,8,16,-2,-1,5},{888,100,12,20,-3,-1,6},{825,15,16,8,-3,5,10},{873,112,14,10,-2,4,10}}} };
 
 struct TextVertex {
-	glm::vec2 pos;
-	glm::vec2 texCoord;
+	glm::vec2 position;
+	glm::vec2 coord;
+	glm::vec3 color;
 };
 
+glm::vec3 textColor = { 0, .5f, .6f };
 
 struct TextMaker {
 	VertexDescriptor VD;
@@ -75,10 +77,12 @@ struct TextMaker {
 		VD.init(BP, {
 				  {0, sizeof(TextVertex), VK_VERTEX_INPUT_RATE_VERTEX}
 			}, {
-			  {0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(TextVertex, pos),
+			  {0, 0, VK_FORMAT_R32G32_SFLOAT, offsetof(TextVertex, position),
 					 sizeof(glm::vec2), OTHER},
-			  {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(TextVertex, texCoord),
-					 sizeof(glm::vec2), UV}
+			  {0, 1, VK_FORMAT_R32G32_SFLOAT, offsetof(TextVertex, coord),
+					 sizeof(glm::vec2), UV},
+			  {0, 2, VK_FORMAT_R32G32B32_SFLOAT, offsetof(TextVertex, color),
+					 sizeof(glm::vec3), COLOR}
 			});
 		DSL.init(BP,
 			{ {0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT} });
@@ -142,42 +146,43 @@ struct TextMaker {
 						CharData d = Fonts[FontId].P[c];
 
 						TextVertex vertex{};
+						vertex.color = textColor;
 
-						vertex.pos = {
+						vertex.position = {
 							(float)(tpx + d.xoffset) * PtoTsx + PtoTdx,
 							(float)(tpy + d.yoffset) * PtoTsy + PtoTdy
 						};
-						vertex.texCoord = {
+						vertex.coord = {
 							(float)d.x / texW,
 							(float)d.y / texH
 						};
 						M.vertices.push_back(vertex);
 
-						vertex.pos = {
+						vertex.position = {
 							(float)(tpx + d.xoffset + d.width) * PtoTsx + PtoTdx,
 							(float)(float)(tpy + d.yoffset) * PtoTsy + PtoTdy
 						};
-						vertex.texCoord = {
+						vertex.coord = {
 							(float)(float)(d.x + d.width) / texW,
 							(float)d.y / texH
 						};
 						M.vertices.push_back(vertex);
 
-						vertex.pos = {
+						vertex.position = {
 							(float)(tpx + d.xoffset) * PtoTsx + PtoTdx,
 							(float)(tpy + d.yoffset + d.height) * PtoTsy + PtoTdy
 						};
-						vertex.texCoord = {
+						vertex.coord = {
 							(float)(d.x) / texW,
 							(float)(d.y + d.height) / texH
 						};
 						M.vertices.push_back(vertex);
 
-						vertex.pos = {
+						vertex.position = {
 							(float)(tpx + d.xoffset + d.width) * PtoTsx + PtoTdx,
 							(float)(tpy + d.yoffset + d.height) * PtoTsy + PtoTdy
 						};
-						vertex.texCoord = {
+						vertex.coord = {
 							(float)(d.x + d.width) / texW,
 							(float)(d.y + d.height) / texH
 						};

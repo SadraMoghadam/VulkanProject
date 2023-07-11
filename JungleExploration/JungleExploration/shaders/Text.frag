@@ -1,0 +1,1 @@
+#version 450#extension GL_ARB_separate_shader_objects : enablelayout (location = 0) in vec2 coord;layout (location = 1) in vec3 color;layout (location = 0) out vec4 outColor;void main(void){	float x = coord.x*0.5 + coord.y;    if (x*x > 10000)	{		outColor = vec4(color, 1.0);		}	else	{		outColor = vec4(1.0);		}	}
