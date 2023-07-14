@@ -158,6 +158,11 @@
     <ClCompile Include="JungleExploration.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CollisionHandler.hpp" />
+    <ClInclude Include="MeshGenerator.hpp" />
+    <ClInclude Include="ObjectsSpecificationsCalculator.hpp" />
+    <ClInclude Include="PlayerHandler.hpp" />
+    <ClInclude Include="Renderer.hpp" />
     <ClInclude Include="Starter.hpp" />
     <ClInclude Include="TextMaker.hpp" />
   </ItemGroup>

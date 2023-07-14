@@ -113,6 +113,7 @@ protected:
 	glm::vec3 realNormX = { 1, 0, 0 };
 	glm::vec3 realNormY = { 0, 1, 0 };
 	glm::vec3 realNormZ = { 0, 0, 1 };
+	float movementAngle = 0;
 
 	// Environment Parameters
 	float randX, randY, randRot, randZ;
@@ -247,7 +248,7 @@ protected:
 
 		// Initializing Models
 		//MCharacter.init(this, &VMesh, "Models/character.obj", OBJ);
-		createSphereMesh(MCharacter.vertices, MCharacter.indices);
+		CreateSphereMesh(MCharacter.vertices, MCharacter.indices);
 		MCharacter.initMesh(this, &VMesh);
 		MGround.init(this, &VMesh, "Models/ground.obj", OBJ);
 		MPlant.init(this, &VMesh, "Models/plant.obj", OBJ);
@@ -264,17 +265,13 @@ protected:
 		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
 		MItem.init(this, &VMesh, "Models/red.obj", OBJ);
 		// Overlay Models
-		MStartPanel.vertices = { {{-1.0f, -1.0f}, {0.0f, 0.0f}}, {{-1.0f, 1.0f}, {0.0f,1.0f}},
-						 {{ 1.0f,-1.0f}, {1.0f,0.0f}}, {{ 1.0f, 1.0f}, {1.0f,1.0f}} };
-		MStartPanel.indices = { 0, 1, 2,    1, 2, 3 };
+		CreateOverlayMesh(MStartPanel.vertices, MStartPanel.indices);
 		MStartPanel.initMesh(this, &VOverlay);
-		MEndPanel.vertices = { {{-1.0f, -1.0f}, {0.0f, 0.0f}}, {{-1.0f, 1.0f}, {0.0f,1.0f}},
-						 {{ 1.0f,-1.0f}, {1.0f,0.0f}}, {{ 1.0f, 1.0f}, {1.0f,1.0f}} };
-		MEndPanel.indices = { 0, 1, 2,    1, 2, 3 };
+		CreateOverlayMesh(MEndPanel.vertices, MEndPanel.indices);
 		MEndPanel.initMesh(this, &VOverlay);
 
 		// Initializing Textures
-		TCharacter.init(this, "textures/Wood.png");
+		TCharacter.init(this, "textures/Ground3.jpg");
 		TGround.init(this, "textures/Ground.png");
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
@@ -706,622 +703,77 @@ protected:
 		RenderEnvironment(currentImage);
 	}
 
-	void PlayerJump(float deltaT, glm::vec3& m)
-	{
-		if (glfwGetKey(window, GLFW_KEY_SPACE)) {
-			isJumping = TRUE;
-			//m.y = 1.0f;
-		}
-	}
+	void Spectate();
 
-	void PlayerController()
-	{
-		const float FOVy = glm::radians(45.0f);
-		const float nearPlane = 0.1f;
-		const float farPlane = 1000.f;
+	void PlayerJump(float deltaT, glm::vec3& m);
 
-		// Player starting point
-		const glm::vec3 startingPosition = glm::vec3(0.0, 0.0, 0.0);
+	void PlayerController();
 
-		// Camera target height and distance
-		const float camHeight = 0.25;
-		const float camDist = 1.5;
-		// Camera Pitch limits
-		const float minPitch = glm::radians(-5.0f);
-		const float maxPitch = glm::radians(60.0f);
-		// Rotation and motion speed
-		const float ROT_SPEED = glm::radians(120.0f);
-		const float MOVE_SPEED = 5.0f;
+	void PickItem(glm::vec3 pos);
 
-		float deltaT;
-		glm::vec3 m = glm::vec3(0.0f, static_cast<int>(isJumping), 0.0f), r = glm::vec3(0.0f);
-		bool fire = false;
-		getSixAxis(deltaT, m, r, fire);
+	void CheckEnding();
 
-#pragma region PlayerMovementRegion
+	void MapBorderCollisionHandler(glm::vec3& pos, glm::vec3& nextPos);
 
-		PlayerJump(deltaT, m);
-		static glm::vec3 pos = startingPosition;
-		glm::vec3 nextPos = pos;
+	void CollisionChecker(glm::vec3 nextPos);
 
-		if (isJumping) {
-			VJump += g * deltaT;
-			//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
-		}
+	void AddCollisionPoint(glm::vec2 position, float threshold);
 
-		glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
-		glm::vec3 uy = glm::vec3(0, VJump, 0);
-		glm::vec3 uz = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1));
-		pitch += ROT_SPEED * r.x * deltaT;
-		yaw += ROT_SPEED * -r.y * deltaT;
-		roll += ROT_SPEED * r.z * deltaT;
-		//std::cout << pitch << "-";
-		glm::vec2 cp = { 5, 5 }; // CollisionPosition
-		nextPos += ux * MOVE_SPEED * m.x * deltaT;
-		nextPos += uz * MOVE_SPEED * m.z * deltaT;
+	void RenderCharacter(uint32_t currentImage);
 
-		MapBorderCollisionHandler(pos, nextPos);
-		CollisionChecker(nextPos);
-		//std::cout << uy.y;
-		if (m.x == 0)
-		{
-			characterRotation.x = 0;
-		}
-		else if (m.z == 0)
-		{
-			characterRotation.z = 0;
-		}
-		if (!isCollision)
-		{
-			pos += ux * MOVE_SPEED * m.x * deltaT;
-			pos += uz * MOVE_SPEED * m.z * deltaT;
-			characterRotation += realNormX * 100.0f * MOVE_SPEED * m.x * deltaT;
-			characterRotation += realNormZ * 100.0f * MOVE_SPEED * m.z * deltaT;
-			//std::cout << pos.x << "=" << pos.z << " & ";
-		}
-		pos += uy * MOVE_SPEED * m.y * deltaT;
+	void RenderEnvironment(uint32_t currentImage);
 
-		if (pos.y < 0.0f) {
-			isJumping = FALSE;
-			VJump = VJumpIni;
-		}
-		isCollision = false;
+	void RenderGround(uint32_t currentImage);
 
-#pragma endregion
+	void RenderPlants(uint32_t currentImage);
 
-		PickItem(pos);
+	void RenderFlowers(uint32_t currentImage);
 
-#pragma region CameraMovementRegion
+	void RenderMountains(uint32_t currentImage);
 
-		glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
-		if (pitch <= minPitch)
-			pitch = minPitch;
-		else if (pitch >= maxPitch)
-			pitch = maxPitch;
-		glm::mat4 Rx = glm::rotate(glm::mat4(1.0), pitch, glm::vec3(1, 0, 0));
-		glm::mat4 Ry = glm::rotate(glm::mat4(1.0), yaw, glm::vec3(0, 1, 0));
-		glm::mat4 Rz = glm::rotate(glm::mat4(1.0), roll, glm::vec3(0, 0, 1));
-		World = T * Ry;
+	void RenderSmallRocks(uint32_t currentImage);
 
-		glm::vec3 c = glm::vec3(World * glm::vec4(0, camHeight + (camDist * sin(pitch)), camDist * cos(pitch), 1));
-		glm::vec3 a = glm::vec3(World * glm::vec4(0, 0, 0, 1.0f)) + glm::vec3(0, camHeight, 0);
-		glm::mat4 Mv = glm::lookAt(c, a, glm::vec3(0, 1, 0));
-		glm::mat4 Mp = glm::perspective(FOVy, Ar, nearPlane, farPlane);
-		Mp[1][1] *= -1;
-		ViewPrj = Mp * Mv;
+	void RenderStumps(uint32_t currentImage);
 
-		// DAMPING
-		float lambda = 20;
-		if (ViewPrjOld == glm::mat4(1))
-			ViewPrjOld = ViewPrj;
-		ViewPrj = ViewPrjOld * exp(-lambda * deltaT) + ViewPrj * (1 - exp(-lambda * deltaT));
-		ViewPrjOld = ViewPrj;
-#pragma endregion
+	void RenderClouds(uint32_t currentImage);
 
+	void RenderRocks(uint32_t currentImage);
 
-	}
+	void RenderTrees(uint32_t currentImage);
 
-	void PickItem(glm::vec3 pos)
-	{
-		for (int i = 0; i < numOfItems; i++)
-		{
-			if ((pos.x < itemPositions[i].x + itemThreshold && pos.x > itemPositions[i].x - itemThreshold) &&
-				(pos.z < itemPositions[i].y + itemThreshold && pos.z > itemPositions[i].y - itemThreshold))
-			{
-				if (glfwGetKey(window, GLFW_KEY_ENTER))
-				{
-					//text =
-					//{
-					//	{1, {"Spectate", "", "", ""}, 0, 0},
-					//	{3, {"Main Game", "", "Total Items = " + std::to_string(1), ""}, 0, 0}
-					//};
-					//txt.updateText(&text);
-					//txt.localCleanup();
-					//txt.pipelinesAndDescriptorSetsCleanup();
-					//txt.init(this, &text);
-					//txt.pipelinesAndDescriptorSetsInit();
-					//txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
-					//RebuildPipeline();
-					isItemPicked[i] = true;
-					CheckEnding();
-					break;
-				}
-			}
-		}
-	}
+	void RenderTrees1(uint32_t currentImage);
 
-	void CheckEnding()
-	{
-		for (int i = 0; i < numOfItems; i++)
-		{
-			if (!isItemPicked[i])
-				return;
-		}
-		currentScene = 2;
-		RebuildPipeline();
-	}
+	void RenderTrees2(uint32_t currentImage);
 
-	void MapBorderCollisionHandler(glm::vec3& pos, glm::vec3& nextPos)
-	{
-		if (nextPos.x < -mapSize / 2 + mountainThreshold)
-		{
-			pos.x = -mapSize / 2 + mountainThreshold;
-		}
-		else if (nextPos.x > mapSize / 2 - mountainThreshold)
-		{
-			pos.x = mapSize / 2 - mountainThreshold;
-		}
-		if (nextPos.z < -mapSize / 2 + mountainThreshold)
-		{
-			pos.z = -mapSize / 2 + mountainThreshold;
-		}
-		else if (nextPos.z > mapSize / 2 - mountainThreshold)
-		{
-			pos.z = mapSize / 2 - mountainThreshold;
-		}
-		if (nextPos.y < 0)
-		{
-			pos.y = 0;
-		}
-	}
+	void RenderTrees3(uint32_t currentImage);
 
-	void CollisionChecker(glm::vec3 nextPos)
-	{
-		for (int i = 0; i < numOfCollisions; i++)
-		{
-			//std::cout << std::get<1>(collisionsInfo[i]) << "-" << std::get<0>(collisionsInfo[i]).x << " && ";
-			xCollision = nextPos.x < std::get<0>(collisionsInfo[i]).x + std::get<1>(collisionsInfo[i]) && nextPos.x > std::get<0>(collisionsInfo[i]).x - std::get<1>(collisionsInfo[i]);
-			yCollision = nextPos.z < std::get<0>(collisionsInfo[i]).y + std::get<1>(collisionsInfo[i]) && nextPos.z > std::get<0>(collisionsInfo[i]).y - std::get<1>(collisionsInfo[i]);
-			if (xCollision && yCollision)
-			{
-				isCollision = true;
-				break;
-			}
-		}
-	}
+	void RenderTrees4(uint32_t currentImage);
 
-	void AddCollisionPoint(glm::vec2 position, float threshold)
-	{
-		std::tuple<glm::vec2, float> collisionInfo(position, threshold);
-		collisionsInfo[thresholdIndex++] = collisionInfo;
-	}
+	void RenderItems(uint32_t currentImage);
 
-	void Spectate()
-	{
-		const float ROT_SPEED = glm::radians(120.0f);
-		const float MOVE_SPEED = 10.0f;
+	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, 
+		float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f));
 
-		float deltaT;
-		glm::vec3 m = glm::vec3(0.0f), r = glm::vec3(0.0f);
-		bool fire = false;
-		getSixAxis(deltaT, m, r, fire);
+	void CalculateEnvironmentObjectsPositionsAndRotations();
 
-		camAlpha = camAlpha - ROT_SPEED * deltaT * r.y;
-		camBeta = camBeta - ROT_SPEED * deltaT * r.x;
-		camBeta = camBeta < glm::radians(-90.0f) ? glm::radians(-90.0f) :
-			(camBeta > glm::radians(90.0f) ? glm::radians(90.0f) : camBeta);
+	void CalculateItemsPosition();
 
-		glm::vec3 ux = glm::rotate(glm::mat4(1.0f), camAlpha, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1);
-		glm::vec3 uz = glm::rotate(glm::mat4(1.0f), camAlpha, glm::vec3(0, 1, 0)) * glm::vec4(0, 0, -1, 1);
-		camPos = camPos + MOVE_SPEED * m.x * ux * deltaT;
-		camPos = camPos + MOVE_SPEED * m.y * glm::vec3(0, 1, 0) * deltaT;
-		camPos = camPos + MOVE_SPEED * m.z * uz * deltaT;
+	void CheckItemPositionOverlap(int numOfObjects, float objectThreshold, float objectThresholdCoefficient, glm::vec2 objectPositions[], 
+		float objectScales[], bool& overlap);
 
-		glm::mat4 M = glm::perspective(glm::radians(45.0f), Ar, 0.1f, 50.0f);
-		M[1][1] *= -1;
+	void CalculateRandomPositionsRotations(int start = -mapSize / 2 + 1, int end = mapSize / 2 - 1, bool checkCenter = false);
 
-		glm::mat4 Mv = glm::rotate(glm::mat4(1.0), -camBeta, glm::vec3(1, 0, 0)) *
-			glm::rotate(glm::mat4(1.0), -camAlpha, glm::vec3(0, 1, 0)) *
-			glm::translate(glm::mat4(1.0), -camPos);
+	void CreateSphereMesh(std::vector<VertexMesh>& vDef, std::vector<uint32_t>& vIdx);
 
-		ViewPrj = M * Mv;
-	}
-
-	void RenderCharacter(uint32_t currentImage)
-	{
-		//std::cout << characterRotation.y;
-		glm::mat4 coefficient = gameState == 0 ? glm::mat4(1) : World;
-		GWorld = coefficient * glm::translate(glm::mat4(1.0), glm::vec3(0, 0.2f, 0))
-			* glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.y), realNormY)
-			//* glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.z), realNormZ)
-			* glm::rotate(glm::mat4(1.0f), glm::radians(characterRotation.x), realNormX)
-			* glm::rotate(glm::mat4(1.0f), glm::radians(-characterRotation.z), realNormZ)
-			//* glm::rotate(glm::mat4(1.0f), glm::radians(-characterRotation.x), realNormX)
-			;
-		uboCharacter.visible = 1.0f;
-		uboCharacter.amb = 1.0f;
-		uboCharacter.gamma = 180.0f;
-		uboCharacter.sColor = glm::vec3(1.0f);
-		uboCharacter.mvpMat = ViewPrj * GWorld;
-		uboCharacter.mMat = GWorld;
-		uboCharacter.nMat = glm::inverse(glm::transpose(GWorld));
-		DSCharacter.map(currentImage, &uboCharacter, sizeof(uboCharacter), 0);
-	}
-
-	void RenderEnvironment(uint32_t currentImage)
-	{
-		RenderGround(currentImage);
-		RenderPlants(currentImage);
-		RenderFlowers(currentImage);
-		RenderMountains(currentImage);
-		RenderSmallRocks(currentImage);
-		RenderStumps(currentImage);
-		RenderClouds(currentImage);
-		RenderTrees(currentImage);
-		RenderTrees1(currentImage);
-		RenderTrees2(currentImage);
-		RenderTrees3(currentImage);
-		RenderTrees4(currentImage);
-		RenderRocks(currentImage);
-		RenderItems(currentImage);
-	}
-
-	void RenderGround(uint32_t currentImage)
-	{
-		for (int i = 0; i < 4; i++)
-		{
-			GWorld = glm::translate(glm::scale(glm::mat4(1), glm::vec3(mapSize / 2)), glm::vec3(groundPositions[i].x, 0, groundPositions[i].y));
-			SetUboDs(currentImage, uboGround, DSGround, i);
-		}
-	}
-
-	void RenderPlants(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfPlants; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(plantPositions[i].x, 0, plantPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(plantRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
-			SetUboDs(currentImage, uboPlant, DSPlant, i, 0.7f);
-		}
-	}
-
-	void RenderFlowers(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfFlowers; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(flowerPositions[i].x, 0, flowerPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(flowerRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
-			SetUboDs(currentImage, uboFlower, DSFlower, i);
-		}
-	}
-
-	void RenderMountains(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfMountains; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(mountainPositions[i].x, 0, mountainPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(mountainRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(mountainScales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboMountain, DSMountain, i);
-		}
-	}
-
-	void RenderSmallRocks(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfSmallRocks; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(smallRockPositions[i].x, 0, smallRockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(smallRockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.1f));
-			SetUboDs(currentImage, uboSmallRock, DSSmallRock, i);
-		}
-	}
-
-	void RenderStumps(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfStumps; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(stumpPositions[i].x, 0, stumpPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(stumpRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(stumpScales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboStump, DSStump, i);
-		}
-	}
-
-	void RenderClouds(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfClouds; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(cloudPositions[i].x, cloudPositions[i].z, cloudPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(cloudRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(cloudScales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboCloud, DSCloud, i);
-		}
-	}
-
-	void RenderRocks(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfRocks; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(rockPositions[i].x, 0, rockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(rockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(rockScales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboRock, DSRock, i);
-		}
-	}
-
-	void RenderTrees(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfTrees; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(treePositions[i].x, 0, treePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(treeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(treeScales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboTree, DSTree, i);
-		}
-	}
-
-	void RenderTrees1(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfTrees1; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree1Positions[i].x, 0, tree1Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree1Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree1Scales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboTree1, DSTree1, i);
-		}
-	}
-
-	void RenderTrees2(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfTrees2; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree2Positions[i].x, 0, tree2Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree2Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree2Scales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboTree2, DSTree2, i);
-		}
-	}
-
-	void RenderTrees3(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfTrees3; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree3Positions[i].x, 0, tree3Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree3Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree3Scales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboTree3, DSTree3, i);
-		}
-	}
-
-	void RenderTrees4(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfTrees4; i++)
-		{
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(tree4Positions[i].x, 0, tree4Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree4Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree4Scales[i] * mapSize / 20));
-			SetUboDs(currentImage, uboTree4, DSTree4, i);
-		}
-	}
-
-	void RenderItems(uint32_t currentImage)
-	{
-		for (int i = 0; i < numOfItems; i++)
-		{
-			if (isItemPicked[i])
-			{
-				//GWorld = glm::translate(glm::mat4(1), glm::vec3(mapSize * 4, 0, mapSize * 4));
-				SetUboDs(currentImage, uboItem, DSItem, i, 0);
-				continue;
-			}
-			GWorld = glm::translate(glm::mat4(1), glm::vec3(itemPositions[i].x, 0, itemPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(itemRotations[i]), glm::vec3(0, 1, 0));
-			SetUboDs(currentImage, uboItem, DSItem, i, 1, 10, 180, { 1, 0, 0 });
-		}
-	}
-
-	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f))
-	{
-		ubo[index].visible = visible;
-		ubo[index].amb = amb;
-		ubo[index].gamma = gamma;
-		ubo[index].sColor = sColor;
-		ubo[index].mvpMat = ViewPrj * GWorld;
-		ubo[index].mMat = GWorld;
-		ubo[index].nMat = glm::inverse(glm::transpose(GWorld));
-		DS[index].map(currentImage, &ubo[index], sizeof(ubo[index]), 0);
-	}
-
-	void CalculateEnvironmentObjectsPositionsAndRotations()
-	{
-		srand(time(0));
-		// Plants
-		for (int i = 0; i < numOfPlants; i++)
-		{
-			CalculateRandomPositionsRotations();
-			plantPositions[i] = { randX, randY };
-			plantRotations[i] = randRot;
-		}
-
-		// Flowers
-		for (int i = 0; i < numOfFlowers; i++)
-		{
-			CalculateRandomPositionsRotations();
-			flowerPositions[i] = { randX, randY };
-			flowerRotations[i] = randRot;
-		}
-
-		// Mountains
-		for (int i = 0; i < numOfMountains; i++)
-		{
-			mountainScales[i] = (float)rand() / RAND_MAX / 6 + 0.15;
-			mountainRotations[i] = rand() % (360 + 1);
-		}
-		for (int i = 0; i < numOfMountains / 4; i++)
-		{
-			int mountainsPerSide = numOfMountains / 4;
-			mountainPositions[i] = { -mapSize / 2 + i * mapSize / mountainsPerSide + 2, -mapSize / 2 };
-			mountainPositions[i + 1 * numOfMountains / 4] = { -mapSize / 2, -mapSize / 2 + i * mapSize / mountainsPerSide + 2 };
-			mountainPositions[i + 2 * numOfMountains / 4] = { -mapSize / 2 + i * mapSize / mountainsPerSide + 2, mapSize / 2 };
-			mountainPositions[i + 3 * numOfMountains / 4] = { mapSize / 2, -mapSize / 2 + i * mapSize / mountainsPerSide + 2 };
-
-			//AddCollisionPoint(mountainPositions[i], mountainThreshold + (mountainScales[i] - .15f) * mountainThresholdCoefficient);
-			//AddCollisionPoint(mountainPositions[i + 1 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
-			//AddCollisionPoint(mountainPositions[i + 2 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
-			//AddCollisionPoint(mountainPositions[i + 3 * numOfMountains / 4], mountainThreshold + (mountainScales[i + 1 * numOfMountains / 4] - .15f) * mountainThresholdCoefficient);
-		}
-
-		// SmallRocks
-		for (int i = 0; i < numOfSmallRocks; i++)
-		{
-			CalculateRandomPositionsRotations();
-			smallRockPositions[i] = { randX, randY };
-			smallRockRotations[i] = randRot;
-		}
-
-		// Stumps
-		for (int i = 0; i < numOfStumps; i++)
-		{
-			stumpScales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			stumpPositions[i] = { randX, randY };
-			stumpRotations[i] = randRot;
-			AddCollisionPoint(stumpPositions[i], stumpThreshold + (stumpScales[i] - 0.2f) * stumpThresholdCoefficient);
-		}
-
-		// Clouds
-		for (int i = 0; i < numOfClouds; i++)
-		{
-			cloudScales[i] = (float)rand() / RAND_MAX / 6 + 0.15;
-			CalculateRandomPositionsRotations(-mapSize / 2 - mountainThreshold, mapSize / 2 + mountainThreshold);
-			randZ = (rand() < RAND_MAX / 2) ? mapSize / 3 : mapSize / 3 + 6;
-			cloudPositions[i] = { randX, randY, randZ };
-			cloudRotations[i] = randRot;
-		}
-
-		// Rocks
-		for (int i = 0; i < numOfRocks; i++)
-		{
-			rockScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			rockPositions[i] = { randX, randY };
-			rockRotations[i] = randRot;
-			AddCollisionPoint(rockPositions[i], rockThreshold + (rockScales[i] - 0.05f) * rockThresholdCoefficient);
-		}
-
-		// Trees
-		for (int i = 0; i < numOfTrees; i++)
-		{
-			treeScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			treePositions[i] = { randX, randY };
-			treeRotations[i] = randRot;
-			AddCollisionPoint(treePositions[i], treeThreshold + (treeScales[i] - 0.05f) * treeThresholdCoefficient);
-		}
-
-		// Trees1
-		for (int i = 0; i < numOfTrees1; i++)
-		{
-			tree1Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			tree1Positions[i] = { randX, randY };
-			tree1Rotations[i] = randRot;
-			AddCollisionPoint(tree1Positions[i], treeThreshold + (tree1Scales[i] - 0.2f) * treeThresholdCoefficient);
-		}
-
-		// Trees2
-		for (int i = 0; i < numOfTrees2; i++)
-		{
-			tree2Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			tree2Positions[i] = { randX, randY };
-			tree2Rotations[i] = randRot;
-			AddCollisionPoint(tree2Positions[i], treeThreshold + (tree2Scales[i] - 0.2f) * treeThresholdCoefficient);
-		}
-
-		// Trees3
-		for (int i = 0; i < numOfTrees3; i++)
-		{
-			tree3Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			tree3Positions[i] = { randX, randY };
-			tree3Rotations[i] = randRot;
-			AddCollisionPoint(tree3Positions[i], treeThreshold + (tree3Scales[i] - 0.2f) * treeThresholdCoefficient);
-		}
-
-		// Trees4
-		for (int i = 0; i < numOfTrees4; i++)
-		{
-			tree4Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
-			tree4Positions[i] = { randX, randY };
-			tree4Rotations[i] = randRot;
-			AddCollisionPoint(tree4Positions[i], treeThreshold + (tree4Scales[i] - 0.2f) * treeThresholdCoefficient);
-		}
-
-		// Items
-		for (int i = 0; i < numOfItems; i++)
-		{
-			// check item position not to go under another object
-			CalculateItemsPosition();
-			std::cout << randX << "=" << randY << " & ";
-			itemPositions[i] = { randX, randY };
-			itemRotations[i] = randRot;
-		}
-	}
-
-	void CalculateItemsPosition()
-	{
-		// check item position not to go under another object
-		bool overlap = false;
-		while (true)
-		{
-			overlap = false;
-			CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold + 1, mapSize / 2 - mountainThreshold - 1);
-			CheckItemPositionOverlap(numOfStumps, stumpThreshold, stumpThresholdCoefficient, stumpPositions, stumpScales, overlap);
-			CheckItemPositionOverlap(numOfRocks, rockThreshold, rockThresholdCoefficient, rockPositions, rockScales, overlap);
-			CheckItemPositionOverlap(numOfTrees, treeThreshold, treeThresholdCoefficient, treePositions, treeScales, overlap);
-			CheckItemPositionOverlap(numOfTrees1, treeThreshold, treeThresholdCoefficient, tree1Positions, tree1Scales, overlap);
-			CheckItemPositionOverlap(numOfTrees2, treeThreshold, treeThresholdCoefficient, tree2Positions, tree2Scales, overlap);
-			CheckItemPositionOverlap(numOfTrees3, treeThreshold, treeThresholdCoefficient, tree3Positions, tree3Scales, overlap);
-			CheckItemPositionOverlap(numOfTrees4, treeThreshold, treeThresholdCoefficient, tree4Positions, tree4Scales, overlap);
-			if (!overlap)
-				break;
-		}
-	}
-
-	void CheckItemPositionOverlap(int numOfObjects, float objectThreshold, float objectThresholdCoefficient, glm::vec2 objectPositions[], float objectScales[], bool& overlap)
-	{
-		float threshold = 0;
-		for (int i = 0; i < numOfObjects; i++)
-		{
-			threshold = objectThreshold + (objectScales[i] - 0.2f) * objectThresholdCoefficient;
-			if (overlap || ((randX < objectPositions[i].x + threshold && randX > objectPositions[i].x - threshold) &&
-				(randY < objectPositions[i].y + threshold && randY > objectPositions[i].y - threshold)))
-			{
-				overlap = true;
-				break;
-			}
-		}
-	}
-
-	void CalculateRandomPositionsRotations(int start = -mapSize / 2 + 1, int end = mapSize / 2 - 1, bool checkCenter = false)
-	{
-		randX = rand() % (end - start + 1) + start;
-		randY = rand() % (end - start + 1) + start;
-		if (checkCenter)
-		{
-			while (true)
-			{
-				if (randX < 1 && randX > -1 && randY < 1 && randY > -1)
-				{
-					randX = rand() % (end - start + 1) + start;
-					randY = rand() % (end - start + 1) + start;
-				}
-				else
-				{
-					break;
-				}
-			}
-		}
-		randRot = rand() % (360 + 1);
-	}
-
-	void createBoxMesh(std::vector<VertexMesh>& vDef, std::vector<uint32_t>& vIdx);
-	void createSphereMesh(std::vector<VertexMesh>& vDef, std::vector<uint32_t>& vIdx);
-
+	void CreateOverlayMesh(std::vector<VertexOverlay>& vDef, std::vector<uint32_t>& vIdx);
 };
 
 
-#include "primGen.hpp"
+#include "MeshGenerator.hpp"
+#include "PlayerHandler.hpp"
+#include "CollisionHandler.hpp"
+#include "Renderer.hpp"
+#include "ObjectsSpecificationsCalculator.hpp"
 
 int main() {
 	JungleExploration app;

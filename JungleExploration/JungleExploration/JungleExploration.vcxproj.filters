@@ -26,5 +26,20 @@
     <ClInclude Include="TextMaker.hpp">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="MeshGenerator.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectsSpecificationsCalculator.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionHandler.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerHandler.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
