@@ -72,17 +72,17 @@ protected:
 	// Models
 	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock,
 		MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4, MItem;
-	Model<VertexOverlay> MStartPanel, MEndPanel;
+	Model<VertexOverlay> MStartPanel, MEndPanel, MInteractionMsg;
 
 	// Textures
-	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TStartPanel, TEndPanel;
+	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TStartPanel, TEndPanel, TInteractionMsg;
 
 	// Descriptor sets
 	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers],
 		DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps],
 		DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1],
 		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems],
-		DSStartPanel, DSEndPanel;
+		DSStartPanel, DSEndPanel, DSInteractionMsg;
 
 	// Uniform Blocks
 	GlobalUniformBufferObject gubo;
@@ -90,7 +90,7 @@ protected:
 		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps],
 		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1],
 		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems];
-	OverlayUniformBlock uboStartPanel, uboEndPanel;
+	OverlayUniformBlock uboStartPanel, uboEndPanel, uboInteractionMsg;
 
 	// Text
 	TextMaker txt;
@@ -194,10 +194,10 @@ protected:
 	void setDescriptorPool()
 	{
 		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
-			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
-		texturesInPool = 7 + 1;
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
+		texturesInPool = 8 + 1;
 		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
-			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + 10;
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
 	}
 
 	void localInit()
@@ -269,6 +269,8 @@ protected:
 		MStartPanel.initMesh(this, &VOverlay);
 		CreateOverlayMesh(MEndPanel.vertices, MEndPanel.indices);
 		MEndPanel.initMesh(this, &VOverlay);
+		CreateOverlayMesh(MInteractionMsg.vertices, MInteractionMsg.indices, -0.7f, 0.7f, 0.8f, 0.5f);
+		MInteractionMsg.initMesh(this, &VOverlay);
 
 		// Initializing Textures
 		TCharacter.init(this, "textures/Ground3.jpg");
@@ -278,6 +280,7 @@ protected:
 		TItem.init(this, "textures/Wood.png");
 		TStartPanel.init(this, "textures/Menu.jpg");
 		TEndPanel.init(this, "textures/Ending.jpg");
+		TInteractionMsg.init(this, "textures/InteractMsg.png");
 
 		txt.init(this, &text, -0.95, -0.95, 2.0 / 1920.0, 2.0 / 1080.0);
 
@@ -407,6 +410,10 @@ protected:
 					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEndPanel}
 			});
+		DSInteractionMsg.init(this, &DSLOverlay, {
+					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
+					{1, TEXTURE, 0, &TInteractionMsg}
+			});
 
 		txt.pipelinesAndDescriptorSetsInit();
 	}
@@ -453,6 +460,7 @@ protected:
 			DSItem[i].cleanup();
 		DSStartPanel.cleanup();
 		DSEndPanel.cleanup();
+		DSInteractionMsg.cleanup();
 
 		txt.pipelinesAndDescriptorSetsCleanup();
 	}
@@ -468,6 +476,7 @@ protected:
 		TItem.cleanup();
 		TStartPanel.cleanup();
 		TEndPanel.cleanup();
+		TInteractionMsg.cleanup();
 
 		// Cleanup Models
 		MCharacter.cleanup();
@@ -487,6 +496,7 @@ protected:
 		MItem.cleanup();
 		MStartPanel.cleanup();
 		MEndPanel.cleanup();
+		MInteractionMsg.cleanup();
 
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
@@ -632,6 +642,11 @@ protected:
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(MEndPanel.indices.size()), 1, 0, 0, 0);
 
+		MInteractionMsg.bind(commandBuffer);
+		DSInteractionMsg.bind(commandBuffer, POverlay, 0, currentImage);
+		vkCmdDrawIndexed(commandBuffer,
+			static_cast<uint32_t>(MInteractionMsg.indices.size()), 1, 0, 0, 0);
+
 		txt.populateCommandBuffer(commandBuffer, currentImage, gameState, currentScene);
 	}
 
@@ -685,7 +700,7 @@ protected:
 			Spectate();
 			break;
 		case 1:
-			PlayerController();
+			PlayerController(currentImage);
 			break;
 		default:
 			break;
@@ -707,9 +722,11 @@ protected:
 
 	void PlayerJump(float deltaT, glm::vec3& m);
 
-	void PlayerController();
+	void PlayerController(uint32_t currentImage);
 
 	void PickItem(glm::vec3 pos);
+
+	void ShowInteractionMessage(uint32_t currentImage, glm::vec3 pos);
 
 	void CheckEnding();
 
@@ -765,7 +782,7 @@ protected:
 
 	void CreateSphereMesh(std::vector<VertexMesh>& vDef, std::vector<uint32_t>& vIdx);
 
-	void CreateOverlayMesh(std::vector<VertexOverlay>& vDef, std::vector<uint32_t>& vIdx);
+	void CreateOverlayMesh(std::vector<VertexOverlay>& vDef, std::vector<uint32_t>& vIdx, float left = -1.0f, float right = 1.0f, float top = 1.0f, float bottom = -1.0f);
 };
 
 

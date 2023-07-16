@@ -1,3 +1,5 @@
+bool canPickItem = false;
+
 void JungleExploration::Spectate()
 {
 	const float ROT_SPEED = glm::radians(120.0f);
@@ -37,7 +39,7 @@ void JungleExploration::PlayerJump(float deltaT, glm::vec3& m)
 	}
 }
 
-void JungleExploration::PlayerController()
+void JungleExploration::PlayerController(uint32_t currentImage)
 {
 	const float FOVy = glm::radians(45.0f);
 	const float nearPlane = 0.1f;
@@ -129,6 +131,7 @@ void JungleExploration::PlayerController()
 #pragma endregion
 
 	PickItem(pos);
+	ShowInteractionMessage(currentImage, pos);
 
 #pragma region CameraMovementRegion
 
@@ -187,6 +190,22 @@ void JungleExploration::PickItem(glm::vec3 pos)
 			}
 		}
 	}
+}
+
+void JungleExploration::ShowInteractionMessage(uint32_t currentImage, glm::vec3 pos)
+{
+	canPickItem = false;
+	for (int i = 0; i < numOfItems; i++)
+	{
+		if ((pos.x < itemPositions[i].x + itemThreshold && pos.x > itemPositions[i].x - itemThreshold) &&
+			(pos.z < itemPositions[i].y + itemThreshold && pos.z > itemPositions[i].y - itemThreshold))
+		{
+			canPickItem = !isItemPicked[i];
+			break;
+		}
+	}
+	uboInteractionMsg.visible = canPickItem ? 1.0f : 0.0f;
+	DSInteractionMsg.map(currentImage, &uboInteractionMsg, sizeof(uboInteractionMsg), 0);
 }
 
 void JungleExploration::CheckEnding()

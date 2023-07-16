@@ -1,5 +1,5 @@
 #define M_PI 3.141595f
-void JungleExploration::CreateSphereMesh(std::vector<VertexMesh> &vDef, std::vector<uint32_t> &vIdx) 
+void JungleExploration::CreateSphereMesh(std::vector<VertexMesh> &vDef, std::vector<uint32_t> &vIdx)
 {
 	int latitudeLines = 40;
 	int longitudeLines = 40;
@@ -58,9 +58,9 @@ void JungleExploration::CreateSphereMesh(std::vector<VertexMesh> &vDef, std::vec
     }
 }
 
-void JungleExploration::CreateOverlayMesh(std::vector<VertexOverlay>& vDef, std::vector<uint32_t>& vIdx)
+void JungleExploration::CreateOverlayMesh(std::vector<VertexOverlay>& vDef, std::vector<uint32_t>& vIdx, float left, float right, float top, float bottom)
 {
-    vDef = { {{-1.0f, -1.0f}, {0.0f, 0.0f}}, {{-1.0f, 1.0f}, {0.0f,1.0f}},
-                     {{ 1.0f,-1.0f}, {1.0f,0.0f}}, {{ 1.0f, 1.0f}, {1.0f,1.0f}} };
+    vDef = { {{left, bottom}, {0.0f, 0.0f}}, {{left, top}, {0.0f,1.0f}},
+             {{right, bottom}, {1.0f,0.0f}}, {{right, top}, {1.0f,1.0f}} };
     vIdx = { 0, 1, 2,    1, 2, 3 };
 }
