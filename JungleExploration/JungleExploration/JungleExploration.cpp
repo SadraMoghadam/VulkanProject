@@ -101,20 +101,6 @@ protected:
 		{3, {"Main Game", "", "Total Items = " + std::to_string(numOfItemsInMap), ""}, 0, 0}
 	};
 
-	// Other Parameters
-	int gameState = 1;
-	int currentScene = 0;
-	float Ar;
-	float yaw = 0, pitch = .3f, roll = 0;
-	glm::mat4 World, ViewPrj, GWorld, ViewPrjOld;
-	glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
-	float camAlpha = 0.0f, camBeta = 0.0f;
-	glm::vec3 characterRotation = { 0.0f, 90.0f , 0.0f };
-	glm::vec3 realNormX = { 1, 0, 0 };
-	glm::vec3 realNormY = { 0, 1, 0 };
-	glm::vec3 realNormZ = { 0, 0, 1 };
-	float movementAngle = 0;
-
 	// Environment Parameters
 	float randX, randY, randRot, randZ;
 	glm::vec2 groundPositions[4] = { {-1, -1}, {-1, 0}, {0, -1}, {0, 0} };
@@ -174,6 +160,12 @@ protected:
 	float treeThreshold = 0.3f;
 	float treeThresholdCoefficient = 1;
 	float itemThreshold = 1.0f;
+
+	// Other Parameters
+	int gameState = 1;
+	int currentScene = 0;
+	float Ar;
+	glm::mat4 World, ViewPrj, GWorld;
 
 
 	void setWindowParameters()

@@ -1,4 +1,11 @@
 bool canPickItem = false;
+glm::vec3 characterRotation = { 0.0f, 90.0f , 0.0f };
+glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
+float camAlpha = 0.0f, camBeta = 0.0f;
+glm::vec3 realNormX = { 1, 0, 0 };
+glm::vec3 realNormY = { 0, 1, 0 };
+glm::vec3 realNormZ = { 0, 0, 1 };
+float movementAngle = 0;
 
 void JungleExploration::Spectate()
 {
@@ -63,10 +70,20 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	bool fire = false;
 	getSixAxis(deltaT, m, r, fire);
 
+
 #pragma region PlayerMovementRegion
 
 	PlayerJump(deltaT, m);
+
 	static glm::vec3 pos = startingPosition;
+	static float yaw = 0, pitch = 0, roll = 0;
+	static glm::quat rot = glm::quat(1, 0, 0, 0);
+	static glm::mat4 ViewPrjOld = glm::mat4(1);
+	static glm::mat4 camRy = glm::mat4(1);
+	static glm::mat4 finalRy = glm::mat4(1);
+	static float finalYaw = 0;
+	static int counter = 0;
+
 	glm::vec3 nextPos = pos;
 
 	if (isJumping) {
@@ -112,13 +129,6 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	{
 		characterRotation.x += 360;
 	}
-	float angle1 = glm::two_pi<float>() * m.x;
-	float angle2 = glm::two_pi<float>() * m.z;
-	float angleDifference = angle2 - angle1;
-	if (angleDifference < 0)
-		angleDifference += glm::two_pi<float>();
-
-	float movementAngle = glm::degrees(angleDifference);
 
 	pos += uy * MOVE_SPEED * m.y * deltaT;
 
@@ -128,12 +138,6 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	}
 	isCollision = false;
 
-#pragma endregion
-
-	PickItem(pos);
-	ShowInteractionMessage(currentImage, pos);
-
-#pragma region CameraMovementRegion
 
 	glm::mat4 T = glm::translate(glm::mat4(1.0), pos);
 	if (pitch <= minPitch)
@@ -143,10 +147,19 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	glm::mat4 Rx = glm::rotate(glm::mat4(1.0), pitch, glm::vec3(1, 0, 0));
 	glm::mat4 Ry = glm::rotate(glm::mat4(1.0), yaw, glm::vec3(0, 1, 0));
 	glm::mat4 Rz = glm::rotate(glm::mat4(1.0), roll, glm::vec3(0, 0, 1));
-	World = T * Ry;
+	if (m.x == 0 && m.z == 0)
+	{
+		World = T * finalRy;
+	}
+	else
+	{
+		World = T * Ry;
+		finalRy = Ry;
+	}
 
-	glm::vec3 c = glm::vec3(World * glm::vec4(0, camHeight + (camDist * sin(pitch)), camDist * cos(pitch), 1));
-	glm::vec3 a = glm::vec3(World * glm::vec4(0, 0, 0, 1.0f)) + glm::vec3(0, camHeight, 0);
+	glm::vec3 c = glm::vec3(T * Ry * glm::vec4(0, camHeight + (camDist * sin(pitch)), camDist * cos(pitch), 1));
+	glm::vec3 a = glm::vec3(T * Ry * glm::vec4(0, 0, 0, 1.0f)) + glm::vec3(0, camHeight, 0);
+
 	glm::mat4 Mv = glm::lookAt(c, a, glm::vec3(0, 1, 0));
 	glm::mat4 Mp = glm::perspective(FOVy, Ar, nearPlane, farPlane);
 	Mp[1][1] *= -1;
@@ -160,6 +173,8 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	ViewPrjOld = ViewPrj;
 #pragma endregion
 
+	PickItem(pos);
+	ShowInteractionMessage(currentImage, pos);
 
 }
 
