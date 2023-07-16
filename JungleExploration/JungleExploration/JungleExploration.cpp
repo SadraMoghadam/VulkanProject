@@ -61,13 +61,13 @@ protected:
 	static const int numOfCollisions = numOfRocks + numOfStumps + numOfTrees * 5;
 
 	// Descriptor Set Layouts
-	DescriptorSetLayout DSLGubo, DSLToon, DSLToonBlinn, DSLOverlay;
+	DescriptorSetLayout DSLGubo, DSLToon, DSLToonPhong, DSLOverlay;
 
 	// Vertex formats
 	VertexDescriptor VMesh, VOverlay;
 
 	// Pipelines
-	Pipeline PToon, PToonBlinn, POverlay;
+	Pipeline PToon, PToonPhong, POverlay;
 
 	// Models
 	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock,
@@ -211,7 +211,7 @@ protected:
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
 			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
 			});
-		DSLToonBlinn.init(this, {
+		DSLToonPhong.init(this, {
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS},
 			{1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_SHADER_STAGE_FRAGMENT_BIT}
 			});
@@ -242,7 +242,7 @@ protected:
 
 		// Initializing Pipelines
 		PToon.init(this, &VMesh, "shaders/ToonVert.spv", "shaders/ToonFrag.spv", { &DSLGubo, &DSLToon });
-		PToonBlinn.init(this, &VMesh, "shaders/ToonBlinnVert.spv", "shaders/ToonBlinnFrag.spv", { &DSLGubo, &DSLToonBlinn });
+		PToonPhong.init(this, &VMesh, "shaders/ToonPhongVert.spv", "shaders/ToonPhongFrag.spv", { &DSLGubo, &DSLToonPhong });
 		POverlay.init(this, &VOverlay, "shaders/OverlayVert.spv", "shaders/OverlayFrag.spv", { &DSLOverlay });
 		POverlay.setAdvancedFeatures(VK_COMPARE_OP_LESS_OR_EQUAL, VK_POLYGON_MODE_FILL, VK_CULL_MODE_NONE, false);
 
@@ -276,8 +276,8 @@ protected:
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		TItem.init(this, "textures/Wood.png");
-		TStartPanel.init(this, "textures/SplashScreen.png");
-		TEndPanel.init(this, "textures/Wood.png");
+		TStartPanel.init(this, "textures/Menu.jpg");
+		TEndPanel.init(this, "textures/Ending.jpg");
 
 		txt.init(this, &text, -0.95, -0.95, 2.0 / 1920.0, 2.0 / 1080.0);
 
@@ -290,7 +290,7 @@ protected:
 		/* TODO */
 		// Creating Pipelines
 		PToon.create();
-		PToonBlinn.create();
+		PToonPhong.create();
 		POverlay.create();
 
 		// Defining the Descriptor Sets
@@ -303,7 +303,7 @@ protected:
 			});
 		for (int i = 0; i < 4; i++)
 		{
-			DSGround[i].init(this, &DSLToonBlinn, {
+			DSGround[i].init(this, &DSLToonPhong, {
 						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
 						{1, TEXTURE, 0, &TGround}
 				});
@@ -416,7 +416,7 @@ protected:
 		/* TODO */
 		// Cleanup Pipelines
 		PToon.cleanup();
-		PToonBlinn.cleanup();
+		PToonPhong.cleanup();
 
 		// Cleanup Descriptor Sets
 		DSGubo.cleanup();
@@ -491,12 +491,12 @@ protected:
 		// Cleanup Descriptor Set Layouts
 		DSLGubo.cleanup();
 		DSLToon.cleanup();
-		DSLToonBlinn.cleanup();
+		DSLToonPhong.cleanup();
 		DSLOverlay.cleanup();
 
 		// Destroying the Pipeline
 		PToon.destroy();
-		PToonBlinn.destroy();
+		PToonPhong.destroy();
 		POverlay.destroy();
 
 		txt.localCleanup();
@@ -611,11 +611,11 @@ protected:
 		}
 
 		// Ground
-		PToonBlinn.bind(commandBuffer);
+		PToonPhong.bind(commandBuffer);
 		MGround.bind(commandBuffer);
 		for (int i = 0; i < 4; i++)
 		{
-			DSGround[i].bind(commandBuffer, PToonBlinn, 1, currentImage);
+			DSGround[i].bind(commandBuffer, PToonPhong, 1, currentImage);
 			vkCmdDrawIndexed(commandBuffer,
 				static_cast<uint32_t>(MGround.indices.size()), 1, 0, 0, 0);
 		}
@@ -752,7 +752,7 @@ protected:
 	void RenderItems(uint32_t currentImage);
 
 	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, 
-		float gamma = 180.0f, glm::vec3 sColor = glm::vec3(1.0f));
+		float gamma = 100.0f, glm::vec3 sColor = glm::vec3(1.0f));
 
 	void CalculateEnvironmentObjectsPositionsAndRotations();
 

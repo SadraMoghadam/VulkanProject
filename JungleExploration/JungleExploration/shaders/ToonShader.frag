@@ -44,12 +44,14 @@ vec3 BRDF(vec3 V, vec3 N, vec3 L, vec3 Md, vec3 Ms, float gamma) {
 	{
 		Md = vec3(0.0f);	
 	}
-	vec3 rlx = 2 * N * dot(L, N) - L;
-	if(dot(rlx, V) >= 0.9f)
+	vec3 Rlx = 2 * N * dot(L, N) - L;
+	vec3 Hlx = normalize(L + V);
+	float specularCoefficient = pow(clamp(dot(N, Hlx), 0.0, 1.0), gamma);
+	if(specularCoefficient >= 0.1f)
 	{
-		Ms = Ms;	
+		Ms = Ms;
 	}
-	else if(dot(rlx, V) < 0.9f)
+	else if(specularCoefficient < 0.1f)
 	{
 		Ms = vec3(0.0f);	
 	}

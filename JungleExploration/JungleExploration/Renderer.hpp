@@ -19,7 +19,7 @@ void JungleExploration::RenderCharacter(uint32_t currentImage)
 	;
 	uboCharacter.visible = 1.0f;
 	uboCharacter.amb = 1.0f;
-	uboCharacter.gamma = 180.0f;
+	uboCharacter.gamma = 100.0f;
 	uboCharacter.sColor = glm::vec3(1.0f);
 	uboCharacter.mvpMat = ViewPrj * GWorld;
 	uboCharacter.mMat = GWorld;

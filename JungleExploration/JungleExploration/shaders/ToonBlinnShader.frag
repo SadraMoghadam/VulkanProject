@@ -44,8 +44,8 @@ vec3 BRDF(vec3 V, vec3 N, vec3 L, vec3 Md, vec3 Ms, float gamma) {
 	{
 		Md = vec3(0.0f);	
 	}
-	vec3 rlx = 2 * N * dot(L, N) - L;
-	vec3 specular = Ms * pow(clamp(dot(V, rlx), 0.0, 1.0), gamma);
+	vec3 Hlx = normalize(L + V);
+	vec3 specular = Ms * pow(clamp(dot(N, Hlx), 0.0, 1.0), gamma);
 	vec3 diffuse = Md;
 	return specular + diffuse;
 }
