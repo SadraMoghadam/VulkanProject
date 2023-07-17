@@ -58,6 +58,7 @@ protected:
 	static const int numOfTrees3 = 10;
 	static const int numOfTrees4 = 10;
 	static const int numOfItems = 2;
+	static const int numOfSpikes = 2;
 	static const int numOfCollisions = numOfRocks + numOfStumps + numOfTrees * 5;
 
 	// Descriptor Set Layouts
@@ -71,26 +72,27 @@ protected:
 
 	// Models
 	Model<VertexMesh> MCharacter, MGround, MPlant, MFlower, MMountain, MSmallRock,
-		MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4, MItem;
-	Model<VertexOverlay> MStartPanel, MEndPanel, MInteractionMsg;
+		MStump, MCloud, MRock, MTree, MTree1, MTree2, MTree3, MTree4, MItem, MSpike;
+	Model<VertexOverlay> MStartPanel, MEndPanel, MLosePanel, MInteractionMsg;
 
 	// Textures
-	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TStartPanel, TEndPanel, TInteractionMsg;
+	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TSpike, TStartPanel, TEndPanel, TLosePanel, TInteractionMsg;
 
 	// Descriptor sets
 	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers],
 		DSMountain[numOfMountains], DSSmallRock[numOfSmallRocks], DSStump[numOfStumps],
 		DSCloud[numOfClouds], DSRock[numOfRocks], DSTree[numOfTrees], DSTree1[numOfTrees1],
 		DSTree2[numOfTrees2], DSTree3[numOfTrees3], DSTree4[numOfTrees4], DSItem[numOfItems],
-		DSStartPanel, DSEndPanel, DSInteractionMsg;
+		DSSpike[numOfSpikes], DSStartPanel, DSEndPanel, DSLosePanel, DSInteractionMsg;
 
 	// Uniform Blocks
 	GlobalUniformBufferObject gubo;
 	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers],
 		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps],
 		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1],
-		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems];
-	OverlayUniformBlock uboStartPanel, uboEndPanel, uboInteractionMsg;
+		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems],
+		uboSpike[numOfSpikes];
+	OverlayUniformBlock uboStartPanel, uboEndPanel, uboLosePanel, uboInteractionMsg;
 
 	// Text
 	TextMaker txt;
@@ -140,6 +142,9 @@ protected:
 	glm::vec2 itemPositions[numOfItems];
 	float itemRotations[numOfItems];
 	bool isItemPicked[numOfItems];
+	glm::vec2 spikePositions[numOfSpikes];
+	float spikeRotations[numOfSpikes];
+	float spikeScales[numOfSpikes];
 
 	//Jump params
 	bool isJumping = FALSE;
@@ -160,6 +165,7 @@ protected:
 	float treeThreshold = 0.3f;
 	float treeThresholdCoefficient = 1;
 	float itemThreshold = 1.0f;
+	float spikeThreshold = 1.0f;
 
 	// Other Parameters
 	int gameState = 1;
@@ -186,10 +192,10 @@ protected:
 	void setDescriptorPool()
 	{
 		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
-			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
-		texturesInPool = 8 + 1;
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + numOfSpikes * 2;
+		texturesInPool = 9 + 1;
 		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
-			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + numOfSpikes * 2;
 	}
 
 	void localInit()
@@ -256,11 +262,14 @@ protected:
 		MTree3.init(this, &VMesh, "Models/tree3.obj", OBJ);
 		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
 		MItem.init(this, &VMesh, "Models/red.obj", OBJ);
+		MSpike.init(this, &VMesh, "Models/brick.obj", OBJ);
 		// Overlay Models
 		CreateOverlayMesh(MStartPanel.vertices, MStartPanel.indices);
 		MStartPanel.initMesh(this, &VOverlay);
 		CreateOverlayMesh(MEndPanel.vertices, MEndPanel.indices);
 		MEndPanel.initMesh(this, &VOverlay);
+		CreateOverlayMesh(MLosePanel.vertices, MLosePanel.indices);
+		MLosePanel.initMesh(this, &VOverlay);
 		CreateOverlayMesh(MInteractionMsg.vertices, MInteractionMsg.indices, -0.7f, 0.7f, 0.8f, 0.5f);
 		MInteractionMsg.initMesh(this, &VOverlay);
 
@@ -270,8 +279,10 @@ protected:
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		TItem.init(this, "textures/Wood.png");
+		TSpike.init(this, "textures/LosePanel.png");
 		TStartPanel.init(this, "textures/Menu.jpg");
 		TEndPanel.init(this, "textures/Ending.jpg");
+		TLosePanel.init(this, "textures/LosePanel.png");
 		TInteractionMsg.init(this, "textures/InteractMsg.png");
 
 		txt.init(this, &text, -0.95, -0.95, 1.0 / 1200.0, 1.0 / 800.0);
@@ -398,6 +409,13 @@ protected:
 					{1, TEXTURE, 0, &TItem},
 				});
 		}
+		for (int i = 0; i < numOfSpikes; i++)
+		{
+			DSSpike[i].init(this, &DSLToon, {
+					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{1, TEXTURE, 0, &TSpike},
+				});
+		}
 		DSStartPanel.init(this, &DSLOverlay, {
 					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TStartPanel}
@@ -405,6 +423,10 @@ protected:
 		DSEndPanel.init(this, &DSLOverlay, {
 					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEndPanel}
+			});
+		DSLosePanel.init(this, &DSLOverlay, {
+					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
+					{1, TEXTURE, 0, &TLosePanel}
 			});
 		DSInteractionMsg.init(this, &DSLOverlay, {
 					{0, UNIFORM, sizeof(OverlayUniformBlock), nullptr},
@@ -454,8 +476,11 @@ protected:
 			DSTree4[i].cleanup();
 		for (int i = 0; i < numOfItems; i++)
 			DSItem[i].cleanup();
+		for (int i = 0; i < numOfSpikes; i++)
+			DSSpike[i].cleanup();
 		DSStartPanel.cleanup();
 		DSEndPanel.cleanup();
+		DSLosePanel.cleanup();
 		DSInteractionMsg.cleanup();
 
 		txt.pipelinesAndDescriptorSetsCleanup();
@@ -470,8 +495,10 @@ protected:
 		TEnv.cleanup();
 		TEnv2.cleanup();
 		TItem.cleanup();
+		TSpike.cleanup();
 		TStartPanel.cleanup();
 		TEndPanel.cleanup();
+		TLosePanel.cleanup();
 		TInteractionMsg.cleanup();
 
 		// Cleanup Models
@@ -490,8 +517,10 @@ protected:
 		MTree3.cleanup();
 		MTree4.cleanup();
 		MItem.cleanup();
+		MSpike.cleanup();
 		MStartPanel.cleanup();
 		MEndPanel.cleanup();
+		MLosePanel.cleanup();
 		MInteractionMsg.cleanup();
 
 		// Cleanup Descriptor Set Layouts
@@ -616,6 +645,13 @@ protected:
 				static_cast<uint32_t>(MItem.indices.size()), 1, 0, 0, 0);
 		}
 
+		MSpike.bind(commandBuffer);
+		for (int i = 0; i < numOfSpikes; i++) {
+			DSSpike[i].bind(commandBuffer, PToon, 1, currentImage);
+			vkCmdDrawIndexed(commandBuffer,
+				static_cast<uint32_t>(MSpike.indices.size()), 1, 0, 0, 0);
+		}
+
 		// Ground
 		PToonPhong.bind(commandBuffer);
 		MGround.bind(commandBuffer);
@@ -637,6 +673,11 @@ protected:
 		DSEndPanel.bind(commandBuffer, POverlay, 0, currentImage);
 		vkCmdDrawIndexed(commandBuffer,
 			static_cast<uint32_t>(MEndPanel.indices.size()), 1, 0, 0, 0);
+
+		MLosePanel.bind(commandBuffer);
+		DSLosePanel.bind(commandBuffer, POverlay, 0, currentImage);
+		vkCmdDrawIndexed(commandBuffer,
+			static_cast<uint32_t>(MLosePanel.indices.size()), 1, 0, 0, 0);
 
 		MInteractionMsg.bind(commandBuffer);
 		DSInteractionMsg.bind(commandBuffer, POverlay, 0, currentImage);
@@ -664,11 +705,20 @@ protected:
 			RebuildPipeline();
 		}
 
+		if (currentScene != 1 || gameState != 1)
+		{
+			uboInteractionMsg.visible = 0.0f;
+			DSInteractionMsg.map(currentImage, &uboInteractionMsg, sizeof(uboInteractionMsg), 0);
+		}
+
 		uboStartPanel.visible = (currentScene == 0) ? 1.0f : 0.0f;
 		DSStartPanel.map(currentImage, &uboStartPanel, sizeof(uboStartPanel), 0);
 
 		uboEndPanel.visible = (currentScene == 2) ? 1.0f : 0.0f;
 		DSEndPanel.map(currentImage, &uboEndPanel, sizeof(uboEndPanel), 0);
+
+		uboLosePanel.visible = (currentScene == 3) ? 1.0f : 0.0f;
+		DSLosePanel.map(currentImage, &uboLosePanel, sizeof(uboLosePanel), 0);
 
 		if (currentScene != 1)
 			return;
@@ -726,6 +776,8 @@ protected:
 
 	void CheckEnding();
 
+	void CheckLose(glm::vec3 pos);
+
 	void MapBorderCollisionHandler(glm::vec3& pos, glm::vec3& nextPos);
 
 	void CollisionChecker(glm::vec3 nextPos);
@@ -763,6 +815,8 @@ protected:
 	void RenderTrees4(uint32_t currentImage);
 
 	void RenderItems(uint32_t currentImage);
+
+	void RenderSpikes(uint32_t currentImage);
 
 	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, 
 		float gamma = 80.0f, glm::vec3 sColor = glm::vec3(1.0f));

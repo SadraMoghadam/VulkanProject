@@ -24,7 +24,7 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1838,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2609,48): warning C4267: '=': conversion from 'size_t' to 'uint32_t', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(9,484): warning C4305: 'initializing': truncation from 'double' to 'const float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\TextMaker.hpp(116,1): warning C4267: '+=': conversion from 'size_t' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(282,1): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(288,1): warning C4305: 'argument': truncation from 'double' to 'float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\MeshGenerator.hpp(6,20): warning C4305: 'initializing': truncation from 'double' to 'float'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(3,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(23,52): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
@@ -54,13 +54,15 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificati
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(121,49): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(122,83): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(122,50): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(146,107): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(146,70): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(176,37): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(177,37): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(184,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(185,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(193,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(142,83): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(142,50): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(155,107): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(155,70): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(186,37): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(187,37): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(194,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(195,40): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\ObjectsSpecificationsCalculator.hpp(203,19): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
           with
           [
@@ -69,8 +71,8 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2052,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(1993): message : while compiling class template member function 'void Model<VertexMesh>::loadModelOBJ(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2274): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelOBJ(std::string)' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2270): message : while compiling class template member function 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)'
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(253): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
-D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(73): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(251): message : see reference to function template instantiation 'void Model<VertexMesh>::init(BaseProject *,VertexDescriptor *,std::string,ModelType)' being compiled
+D:\Projects\VulkanProject\JungleExploration\JungleExploration\JungleExploration.cpp(74): message : see reference to class template instantiation 'Model<VertexMesh>' being compiled
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2101,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2061): message : while compiling class template member function 'void Model<VertexMesh>::loadModelGLTF(std::string)'
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2276): message : see reference to function template instantiation 'void Model<VertexMesh>::loadModelGLTF(std::string)' being compiled
@@ -78,8 +80,8 @@ D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2115,1
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2129,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 D:\Projects\VulkanProject\JungleExploration\JungleExploration\Starter.hpp(2143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
   Generating code
-  16 of 7195 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  0 of 7196 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    24 functions had inline decision re-evaluated but remain unchanged
+    0 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   JungleExploration.vcxproj -> D:\Projects\VulkanProject\JungleExploration\x64\Release\JungleExploration.exe
