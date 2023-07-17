@@ -121,8 +121,33 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 		pos += uz * MOVE_SPEED * m.z * deltaT;
 		//std::cout << pos.x << "=" << pos.z << " & ";
 	}
+	if (m.x == 1.0 && m.z == 1.0)
+	{
+		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
+		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+		//characterRotation.y = 1;
+	}
+	if (m.x == -1.0 && m.z == 1.0)
+	{
+		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
+		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+		//characterRotation.y = -1;
+	}
+	if (m.x == 1.0 && m.z == -1.0)
+	{
+		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
+		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+		//characterRotation.y = -1;
+	}
+	if (m.x == -1.0 && m.z == -1.0)
+	{
+		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
+		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+		//characterRotation.y = -1;
+	}
 	characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
 	characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
+	
 	if (characterRotation.x > 180)
 	{
 		characterRotation.x -= 360;
@@ -190,15 +215,15 @@ void JungleExploration::PickItem(glm::vec3 pos)
 		{
 			if (glfwGetKey(window, GLFW_KEY_ENTER))
 			{
-				//text =
-				//{
-				//	{1, {"Spectate", "", "", ""}, 0, 0},
-				//	{3, {"Main Game", "", "Total Items = " + std::to_string(1), ""}, 0, 0}
-				//};
-				//txt.updateText(&text);
+				// text =
+				// {
+				// 	{1, {"Spectate", "", "", ""}, 0, 0},
+				// 	{3, {"Main Game", "", "Total Items = " + std::to_string(100), ""}, 0, 0}
+				// };
+				// txt.updateText(&text);
 				//txt.localCleanup();
 				//txt.pipelinesAndDescriptorSetsCleanup();
-				//txt.init(this, &text);
+				//txt.init(this, &text, -0.95, -0.95, 1.0 / 1200.0, 1.0 / 800.0);
 				//txt.pipelinesAndDescriptorSetsInit();
 				//txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
 				//RebuildPipeline();

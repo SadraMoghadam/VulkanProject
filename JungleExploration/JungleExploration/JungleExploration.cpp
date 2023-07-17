@@ -60,6 +60,7 @@ protected:
 	static const int numOfTrees3 = 1 * objectNumScale;
 	static const int numOfTrees4 = 1 * objectNumScale;
 	static const int numOfItems = 20;
+	static const int numOfSpikes = 20;
 	static const int numOfCollisions = (numOfRocks + numOfStumps + numOfTrees * 5) * objectNumScale;
 
 	// Descriptor Set Layouts

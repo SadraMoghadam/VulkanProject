@@ -123,7 +123,7 @@ void JungleExploration::RenderTrees(uint32_t currentImage)
 {
 	for (int i = 0; i < numOfTrees; i++)
 	{
-		GWorld = glm::translate(glm::mat4(1), glm::vec3(treePositions[i].x, 0, treePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(treeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(treeScales[i]* 2.5f));
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(treePositions[i].x, 0, treePositions[i].y)) * glm::scale(glm::mat4(1), glm::vec3(treeScales[i]* 2.5f));
 		SetUboDs(currentImage, uboTree, DSTree, i);
 	}
 }
@@ -141,7 +141,7 @@ void JungleExploration::RenderTrees2(uint32_t currentImage)
 {
 	for (int i = 0; i < numOfTrees2; i++)
 	{
-		GWorld = glm::translate(glm::mat4(1), glm::vec3(tree2Positions[i].x, 0, tree2Positions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(tree2Rotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(tree2Scales[i] * 2.5f));
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(tree2Positions[i].x, 0, tree2Positions[i].y))  * glm::scale(glm::mat4(1), glm::vec3(tree2Scales[i] * 2.5f));
 		SetUboDs(currentImage, uboTree2, DSTree2, i);
 	}
 }
