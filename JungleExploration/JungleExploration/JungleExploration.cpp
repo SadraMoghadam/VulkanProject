@@ -154,6 +154,13 @@ protected:
 	float VJump = VJumpIni;
 	float g = -1.1f;
 
+	//Animation params
+	bool pickAnimation = false;
+	float VpickJumpIni = 0.5f;
+	float VpickJump = VpickJumpIni;
+	float gAnimation = -10.0f;
+	int animationCounter = 0;
+
 	// Collision Parameters
 	bool xCollision = false, yCollision = false, isCollision = false;
 	int thresholdIndex = 0;
@@ -771,6 +778,8 @@ protected:
 	void PlayerJump(float deltaT, glm::vec3& m);
 
 	void PlayerController(uint32_t currentImage);
+
+	void PickAnimation(float deltaT, glm::vec3& pos);
 
 	void PickItem(glm::vec3 pos);
 

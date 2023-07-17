@@ -158,6 +158,9 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	}
 
 	pos += uy * MOVE_SPEED * m.y * deltaT;
+	//std::cout << "post before: \n" << pos.y;
+	PickAnimation( deltaT, pos);
+	//std::cout << "post after: \n"<< pos.y;
 
 	if (pos.y < 0.0f) {
 		isJumping = FALSE;
@@ -206,6 +209,34 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 
 }
 
+void JungleExploration::PickAnimation(float deltaT, glm::vec3& pos){
+	glm::vec3 m = glm::vec3(0.0f, static_cast<int>(pickAnimation), 0.0f);
+	//std::cout << m.y;
+	if (pickAnimation) {
+		//std::cout << "pick animation is: \n" << pickAnimation;
+		VpickJump += gAnimation * deltaT;
+		//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
+	}
+	glm::vec3 uy = glm::vec3(0, VpickJump, 0);
+	
+	pos += 5.0f * uy * m.y * deltaT;
+	std::cout << pos.y;
+	std::cout << " \n";
+	if (pos.y < 0.0f) {
+		VpickJump = VpickJumpIni;
+		animationCounter += 1;
+		if (animationCounter == 5)
+		{
+			pickAnimation = FALSE;
+			VpickJump = VpickJumpIni;
+			animationCounter = 0;
+			//std::cout << pickAnimation;
+		}
+		
+	}
+
+}
+
 void JungleExploration::PickItem(glm::vec3 pos)
 {
 	for (int i = 0; i < numOfItems; i++)
@@ -227,6 +258,7 @@ void JungleExploration::PickItem(glm::vec3 pos)
 				//txt.pipelinesAndDescriptorSetsInit();
 				//txt.populateCommandBuffer(commandBuffer, currentImage, currentScene);
 				//RebuildPipeline();
+				pickAnimation = true;
 				isItemPicked[i] = true;
 				CheckEnding();
 				break;
