@@ -32,7 +32,7 @@ vec3 BRDF(vec3 V, vec3 N, vec3 L, vec3 Md, vec3 Ms, float gamma) {
 	//vec3 L  - light vector (from the light model)
 	//vec3 Md - main color of the surface
 	//vec3 Ms - specular color of the surface
-	if(dot(L, N) >= 0.5f)
+	if(dot(L, N) >= 0.6f)
 	{
 		Md = Md;	
 	}
@@ -47,11 +47,11 @@ vec3 BRDF(vec3 V, vec3 N, vec3 L, vec3 Md, vec3 Ms, float gamma) {
 	vec3 Rlx = 2 * N * dot(L, N) - L;
 	vec3 Hlx = normalize(L + V);
 	float specularCoefficient = pow(clamp(dot(N, Hlx), 0.0, 1.0), gamma);
-	if(specularCoefficient >= 0.1f)
+	if(specularCoefficient >= 0.8f)
 	{
 		Ms = Ms;
 	}
-	else if(specularCoefficient < 0.1f)
+	else if(specularCoefficient < 0.8f)
 	{
 		Ms = vec3(0.0f);	
 	}

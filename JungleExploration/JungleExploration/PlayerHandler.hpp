@@ -1,4 +1,5 @@
 bool canPickItem = false;
+bool isLost = false;
 glm::vec3 characterRotation = { 0.0f, 90.0f , 0.0f };
 glm::vec3 camPos = glm::vec3(0.0, 1.5, 0.0);
 float camAlpha = 0.0f, camBeta = 0.0f;
@@ -6,6 +7,7 @@ glm::vec3 realNormX = { 1, 0, 0 };
 glm::vec3 realNormY = { 0, 1, 0 };
 glm::vec3 realNormZ = { 0, 0, 1 };
 float movementAngle = 0;
+
 
 void JungleExploration::Spectate()
 {
@@ -175,6 +177,7 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 
 	PickItem(pos);
 	ShowInteractionMessage(currentImage, pos);
+	CheckLose(pos);
 
 }
 
@@ -232,4 +235,22 @@ void JungleExploration::CheckEnding()
 	}
 	currentScene = 2;
 	RebuildPipeline();
+}
+
+void JungleExploration::CheckLose(glm::vec3 pos)
+{
+	for (int i = 0; i < numOfItems; i++)
+	{
+		if ((pos.x < spikePositions[i].x + spikeThreshold && pos.x > spikePositions[i].x - spikeThreshold) &&
+			(pos.z < spikePositions[i].y + spikeThreshold && pos.z > spikePositions[i].y - spikeThreshold))
+		{
+			isLost = true;
+			break;
+		}
+	}
+	if (isLost)
+	{
+		currentScene = 3;
+		RebuildPipeline();
+	}
 }

@@ -20,7 +20,7 @@ void JungleExploration::RenderCharacter(uint32_t currentImage)
 	;
 	uboCharacter.visible = 1.0f;
 	uboCharacter.amb = 1.0f;
-	uboCharacter.gamma = 100.0f;
+	uboCharacter.gamma = 20.0f;
 	uboCharacter.sColor = glm::vec3(1.0f);
 	uboCharacter.mvpMat = ViewPrj * GWorld;
 	uboCharacter.mMat = GWorld;
@@ -44,6 +44,7 @@ void JungleExploration::RenderEnvironment(uint32_t currentImage)
 	RenderTrees4(currentImage);
 	RenderRocks(currentImage);
 	RenderItems(currentImage);
+	RenderSpikes(currentImage);
 }
 
 void JungleExploration::RenderGround(uint32_t currentImage)
@@ -175,6 +176,16 @@ void JungleExploration::RenderItems(uint32_t currentImage)
 		}
 		GWorld = glm::translate(glm::mat4(1), glm::vec3(itemPositions[i].x, 0.1f, itemPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(itemRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(0.3f));
 		SetUboDs(currentImage, uboItem, DSItem, i, 1, 20, 180, { 1, 1, 1 });
+	}
+}
+
+void JungleExploration::RenderSpikes(uint32_t currentImage)
+{
+	for (int i = 0; i < numOfSpikes; i++)
+	{
+		std::cout << spikePositions[i].x << " & ";
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(spikePositions[i].x, 0, spikePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(spikeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(spikeScales[i]));
+		SetUboDs(currentImage, uboSpike, DSSpike, i);
 	}
 }
 

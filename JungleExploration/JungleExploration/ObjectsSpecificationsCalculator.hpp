@@ -81,7 +81,7 @@ void JungleExploration::CalculateEnvironmentObjectsPositionsAndRotations()
 		treeScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
 		CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 		treePositions[i] = { randX, randY };
-		treeRotations[i] = randRot;
+		//treeRotations[i] = randRot;
 		AddCollisionPoint(treePositions[i], treeThreshold + (treeScales[i] - 0.05f) * treeThresholdCoefficient);
 	}
 
@@ -101,7 +101,7 @@ void JungleExploration::CalculateEnvironmentObjectsPositionsAndRotations()
 		tree2Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
 		CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 		tree2Positions[i] = { randX, randY };
-		tree2Rotations[i] = randRot;
+		//tree2Rotations[i] = randRot;
 		AddCollisionPoint(tree2Positions[i], treeThreshold + (tree2Scales[i] - 0.2f) * treeThresholdCoefficient);
 	}
 
@@ -130,9 +130,18 @@ void JungleExploration::CalculateEnvironmentObjectsPositionsAndRotations()
 	{
 		// check item position not to go under another object
 		CalculateItemsPosition();
-		std::cout << randX << "=" << randY << " & ";
+		//std::cout << randX << "=" << randY << " & ";
 		itemPositions[i] = { randX, randY };
 		itemRotations[i] = randRot;
+	}
+
+	// Spikes
+	for (int i = 0; i < numOfSpikes; i++)
+	{
+		spikeScales[i] = .05f;
+		CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
+		spikePositions[i] = { randX, randY };
+		spikeRotations[i] = randRot;
 	}
 }
 
@@ -151,6 +160,7 @@ void JungleExploration::CalculateItemsPosition()
 		CheckItemPositionOverlap(numOfTrees2, treeThreshold, treeThresholdCoefficient, tree2Positions, tree2Scales, overlap);
 		CheckItemPositionOverlap(numOfTrees3, treeThreshold, treeThresholdCoefficient, tree3Positions, tree3Scales, overlap);
 		CheckItemPositionOverlap(numOfTrees4, treeThreshold, treeThresholdCoefficient, tree4Positions, tree4Scales, overlap);
+		//CheckItemPositionOverlap(numOfSpikes, spikeThreshold, 0, spikePositions, spikeScales, overlap);
 		if (!overlap)
 			break;
 	}
@@ -179,7 +189,7 @@ void JungleExploration::CalculateRandomPositionsRotations(int start, int end, bo
 	{
 		while (true)
 		{
-			if (randX < 1 && randX > -1 && randY < 1 && randY > -1)
+			if (randX < 2 && randX > -2 && randY < 2 && randY > -2)
 			{
 				randX = rand() % (end - start + 1) + start;
 				randY = rand() % (end - start + 1) + start;
