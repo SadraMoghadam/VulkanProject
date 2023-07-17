@@ -123,13 +123,13 @@ protected:
 	float rockRotations[numOfRocks];
 	float rockScales[numOfRocks];
 	glm::vec2 treePositions[numOfTrees];
-	float treeRotations[numOfTrees];
+	//float treeRotations[numOfTrees];
 	float treeScales[numOfTrees];
 	glm::vec2 tree1Positions[numOfTrees1];
 	float tree1Rotations[numOfTrees1];
 	float tree1Scales[numOfTrees1];
 	glm::vec2 tree2Positions[numOfTrees2];
-	float tree2Rotations[numOfTrees2];
+	//float tree2Rotations[numOfTrees2];
 	float tree2Scales[numOfTrees2];
 	glm::vec2 tree3Positions[numOfTrees3];
 	float tree3Rotations[numOfTrees3];
@@ -153,8 +153,8 @@ protected:
 	float mountainThreshold = 7.8f;
 	float mountainThresholdCoefficient = 10;
 	std::tuple<glm::vec2, float> collisionsInfo[numOfCollisions];
-	float rockThreshold = 0.7f;
-	float rockThresholdCoefficient = 1;
+	float rockThreshold = 0.4f;
+	float rockThresholdCoefficient = 8;
 	float stumpThreshold = 0.4f;
 	float stumpThresholdCoefficient = 1;
 	float treeThreshold = 0.3f;
@@ -170,8 +170,8 @@ protected:
 
 	void setWindowParameters()
 	{
-		windowWidth = 800;
-		windowHeight = 600;
+		windowWidth = 1920;
+		windowHeight = 1080;
 		windowTitle = "Jungle Exploration";
 		windowResizable = GLFW_TRUE;
 		initialBackgroundColor = { 0.5f, 0.8f, 0.9f, 1.0f };
@@ -274,9 +274,13 @@ protected:
 		TEndPanel.init(this, "textures/Ending.jpg");
 		TInteractionMsg.init(this, "textures/InteractMsg.png");
 
-		txt.init(this, &text, -0.95, -0.95, 2.0 / 1920.0, 2.0 / 1080.0);
+		txt.init(this, &text, -0.95, -0.95, 1.0 / 1200.0, 1.0 / 800.0);
 
 		// Init local variables
+		for (int i = 0; i < numOfItems; i++)
+		{
+			isItemPicked[i] = false;
+		}
 		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
 
@@ -699,7 +703,7 @@ protected:
 
 		}
 
-		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
+		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(210.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(210.0f)));
 		gubo.DlightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 		gubo.AmbLightColor = glm::vec3(0.1f);
 		gubo.eyePos = glm::vec3(100.0, 100.0, 100.0);
@@ -761,7 +765,7 @@ protected:
 	void RenderItems(uint32_t currentImage);
 
 	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, 
-		float gamma = 100.0f, glm::vec3 sColor = glm::vec3(1.0f));
+		float gamma = 80.0f, glm::vec3 sColor = glm::vec3(1.0f));
 
 	void CalculateEnvironmentObjectsPositionsAndRotations();
 

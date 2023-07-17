@@ -39,7 +39,7 @@ struct TextVertex {
 	glm::vec3 color;
 };
 
-glm::vec3 textColor = { 0, .5f, .6f };
+glm::vec3 textColor = { 0, .8f, .3f };
 
 struct TextMaker {
 	VertexDescriptor VD;
@@ -129,8 +129,8 @@ struct TextMaker {
 
 		int minChar = 32;
 		int maxChar = 127;
-		int texW = 1920;
-		int texH = 1080;
+		int texW = 1024;
+		int texH = 512;
 
 		int tpx = 0;
 		int tpy = 0;

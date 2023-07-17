@@ -209,6 +209,12 @@ void JungleExploration::PickItem(glm::vec3 pos)
 
 void JungleExploration::ShowInteractionMessage(uint32_t currentImage, glm::vec3 pos)
 {
+	if (currentScene != 1 && gameState != 1)
+	{
+		uboInteractionMsg.visible = 0.0f;
+		DSInteractionMsg.map(currentImage, &uboInteractionMsg, sizeof(uboInteractionMsg), 0);
+		return;
+	}
 	canPickItem = false;
 	for (int i = 0; i < numOfItems; i++)
 	{

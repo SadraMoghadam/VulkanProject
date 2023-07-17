@@ -81,7 +81,7 @@ void JungleExploration::CalculateEnvironmentObjectsPositionsAndRotations()
 		treeScales[i] = (float)rand() / RAND_MAX / 8 + 0.05;
 		CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 		treePositions[i] = { randX, randY };
-		treeRotations[i] = randRot;
+		//treeRotations[i] = randRot;
 		AddCollisionPoint(treePositions[i], treeThreshold + (treeScales[i] - 0.05f) * treeThresholdCoefficient);
 	}
 
@@ -101,7 +101,7 @@ void JungleExploration::CalculateEnvironmentObjectsPositionsAndRotations()
 		tree2Scales[i] = (float)rand() / RAND_MAX / 6 + 0.2;
 		CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 		tree2Positions[i] = { randX, randY };
-		tree2Rotations[i] = randRot;
+		//tree2Rotations[i] = randRot;
 		AddCollisionPoint(tree2Positions[i], treeThreshold + (tree2Scales[i] - 0.2f) * treeThresholdCoefficient);
 	}
 
