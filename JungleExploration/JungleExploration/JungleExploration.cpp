@@ -276,7 +276,7 @@ protected:
 		MInteractionMsg.initMesh(this, &VOverlay);
 
 		// Initializing Textures
-		TCharacter.init(this, "textures/Ground3.jpg");
+		TCharacter.init(this, "textures/Character.jpg");
 		TGround.init(this, "textures/Ground.png");
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
