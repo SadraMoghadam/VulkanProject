@@ -44,21 +44,23 @@ class JungleExploration : public BaseProject
 {
 protected:
 	// Constant Parameters
-	static const int mapSize = 50;
-	static const int numOfPlants = 300;
-	static const int numOfFlowers = 300;
+	static const int mapScale = 10;
+	static const int objectNumScale = 10;
+	static const int mapSize = 5 * mapScale;
+	static const int numOfPlants = 30 * objectNumScale;
+	static const int numOfFlowers = 30 * objectNumScale;
 	static const int numOfMountains = 7 * 4;
-	static const int numOfSmallRocks = 300;
-	static const int numOfStumps = 15;
-	static const int numOfClouds = 15;
-	static const int numOfRocks = 15;
-	static const int numOfTrees = 10;
-	static const int numOfTrees1 = 10;
-	static const int numOfTrees2 = 10;
-	static const int numOfTrees3 = 10;
-	static const int numOfTrees4 = 10;
-	static const int numOfItems = 2;
-	static const int numOfCollisions = numOfRocks + numOfStumps + numOfTrees * 5;
+	static const int numOfSmallRocks = 30 * objectNumScale;
+	static const int numOfStumps = 2 * objectNumScale;
+	static const int numOfClouds = 2 * objectNumScale;
+	static const int numOfRocks = 2 * objectNumScale;
+	static const int numOfTrees = 1 * objectNumScale;
+	static const int numOfTrees1 = 1 * objectNumScale;
+	static const int numOfTrees2 = 1 * objectNumScale;
+	static const int numOfTrees3 = 1 * objectNumScale;
+	static const int numOfTrees4 = 1 * objectNumScale;
+	static const int numOfItems = 20;
+	static const int numOfCollisions = (numOfRocks + numOfStumps + numOfTrees * 5) * objectNumScale;
 
 	// Descriptor Set Layouts
 	DescriptorSetLayout DSLGubo, DSLToon, DSLToonPhong, DSLOverlay;
@@ -153,8 +155,8 @@ protected:
 	float mountainThreshold = 7.8f;
 	float mountainThresholdCoefficient = 10;
 	std::tuple<glm::vec2, float> collisionsInfo[numOfCollisions];
-	float rockThreshold = 0.7f;
-	float rockThresholdCoefficient = 1;
+	float rockThreshold = 0.4f;
+	float rockThresholdCoefficient = 8;
 	float stumpThreshold = 0.4f;
 	float stumpThresholdCoefficient = 1;
 	float treeThreshold = 0.3f;
@@ -187,7 +189,7 @@ protected:
 	{
 		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
-		texturesInPool = 8 + 1;
+		texturesInPool = 8;
 		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2;
 	}
@@ -255,7 +257,7 @@ protected:
 		MTree2.init(this, &VMesh, "Models/tree2.obj", OBJ);
 		MTree3.init(this, &VMesh, "Models/tree3.obj", OBJ);
 		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
-		MItem.init(this, &VMesh, "Models/red.obj", OBJ);
+		MItem.init(this, &VMesh, "Models/decoration.011_Mesh.7123.mgcg", MGCG);
 		// Overlay Models
 		CreateOverlayMesh(MStartPanel.vertices, MStartPanel.indices);
 		MStartPanel.initMesh(this, &VOverlay);
@@ -269,7 +271,7 @@ protected:
 		TGround.init(this, "textures/Ground.png");
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
-		TItem.init(this, "textures/Wood.png");
+		TItem.init(this, "textures/Textures_Dungeon.png");
 		TStartPanel.init(this, "textures/Menu.jpg");
 		TEndPanel.init(this, "textures/Ending.jpg");
 		TInteractionMsg.init(this, "textures/InteractMsg.png");
@@ -277,6 +279,9 @@ protected:
 		txt.init(this, &text, -0.95, -0.95, 2.0 / 1920.0, 2.0 / 1080.0);
 
 		// Init local variables
+		for (int i=0; i< numOfItems; i++){
+			isItemPicked[i] = false;
+		}
 		CalculateEnvironmentObjectsPositionsAndRotations();
 	}
 
@@ -699,9 +704,9 @@ protected:
 
 		}
 
-		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)), sin(glm::radians(135.0f)), 0.0f);
+		gubo.DlightDir = glm::vec3(cos(glm::radians(90.0f)), sin(glm::radians(90.0f)), 0.0f);
 		gubo.DlightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-		gubo.AmbLightColor = glm::vec3(0.1f);
+		gubo.AmbLightColor = glm::vec3(0.2f);
 		gubo.eyePos = glm::vec3(100.0, 100.0, 100.0);
 
 		DSGubo.map(currentImage, &gubo, sizeof(gubo), 0);
