@@ -156,7 +156,7 @@ protected:
 
 	//Animation params
 	bool pickAnimation = false;
-	float VpickJumpIni = 0.5f;
+	float VpickJumpIni = 1.5f;
 	float VpickJump = VpickJumpIni;
 	float gAnimation = -10.0f;
 	int animationCounter = 0;

@@ -219,13 +219,13 @@ void JungleExploration::PickAnimation(float deltaT, glm::vec3& pos){
 	}
 	glm::vec3 uy = glm::vec3(0, VpickJump, 0);
 	
-	pos += 5.0f * uy * m.y * deltaT;
+	pos += 2.0f * uy * m.y * deltaT;
 	std::cout << pos.y;
 	std::cout << " \n";
 	if (pos.y < 0.0f) {
 		VpickJump = VpickJumpIni;
 		animationCounter += 1;
-		if (animationCounter == 5)
+		if (animationCounter == 4)
 		{
 			pickAnimation = FALSE;
 			VpickJump = VpickJumpIni;
