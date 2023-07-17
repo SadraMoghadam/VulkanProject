@@ -102,7 +102,7 @@ protected:
 	std::vector<SingleText> text =
 	{
 		{1, {"Spectate", "", "", ""}, 0, 0},
-		{3, {"Main Game", "", "Total Items = " + std::to_string(numOfItemsInMap), ""}, 0, 0}
+		{4, {"Main Game", "Total Items = " + std::to_string(numOfItemsInMap), "", "Find the precious gems and avoid the yellow spikes"}, 0, 0}
 	};
 
 	// Environment Parameters

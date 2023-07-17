@@ -296,9 +296,10 @@ void JungleExploration::CheckEnding()
 
 void JungleExploration::CheckLose(glm::vec3 pos)
 {
+	if (isJumping)
+		return;
 	for (int i = 0; i < numOfSpikes; i++)
 	{
-		
 		if ((pos.x < spikePositions[i].x + spikeThreshold && pos.x > spikePositions[i].x - spikeThreshold) &&
 			(pos.z < spikePositions[i].y + spikeThreshold && pos.z > spikePositions[i].y - spikeThreshold))
 		{
