@@ -239,11 +239,13 @@ void JungleExploration::CheckEnding()
 
 void JungleExploration::CheckLose(glm::vec3 pos)
 {
-	for (int i = 0; i < numOfItems; i++)
+	for (int i = 0; i < numOfSpikes; i++)
 	{
+		
 		if ((pos.x < spikePositions[i].x + spikeThreshold && pos.x > spikePositions[i].x - spikeThreshold) &&
 			(pos.z < spikePositions[i].y + spikeThreshold && pos.z > spikePositions[i].y - spikeThreshold))
 		{
+			std::cout << pos.x << " - " << spikePositions[i].x << " & ";
 			isLost = true;
 			break;
 		}

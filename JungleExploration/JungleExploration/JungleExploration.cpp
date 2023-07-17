@@ -59,8 +59,8 @@ protected:
 	static const int numOfTrees2 = 1 * objectNumScale;
 	static const int numOfTrees3 = 1 * objectNumScale;
 	static const int numOfTrees4 = 1 * objectNumScale;
-	static const int numOfItems = 20;
-	static const int numOfSpikes = 20;
+	static const int numOfItems = 5;
+	static const int numOfSpikes = 2 * objectNumScale;
 	static const int numOfCollisions = (numOfRocks + numOfStumps + numOfTrees * 5) * objectNumScale;
 
 	// Descriptor Set Layouts
@@ -166,8 +166,8 @@ protected:
 	float stumpThresholdCoefficient = 1;
 	float treeThreshold = 0.3f;
 	float treeThresholdCoefficient = 1;
-	float itemThreshold = 1.0f;
-	float spikeThreshold = 1.0f;
+	float itemThreshold = 0.5f;
+	float spikeThreshold = 0.7f;
 
 	// Other Parameters
 	int gameState = 1;
@@ -263,8 +263,8 @@ protected:
 		MTree2.init(this, &VMesh, "Models/tree2.obj", OBJ);
 		MTree3.init(this, &VMesh, "Models/tree3.obj", OBJ);
 		MTree4.init(this, &VMesh, "Models/tree4.obj", OBJ);
-		MItem.init(this, &VMesh, "Models/decoration.011_Mesh.7123.mgcg", MGCG);
-		MSpike.init(this, &VMesh, "Models/brick.obj", OBJ);
+		MItem.init(this, &VMesh, "Models/item.mgcg", MGCG);
+		MSpike.init(this, &VMesh, "Models/spike.mgcg", MGCG);
 		// Overlay Models
 		CreateOverlayMesh(MStartPanel.vertices, MStartPanel.indices);
 		MStartPanel.initMesh(this, &VOverlay);
@@ -281,7 +281,7 @@ protected:
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		TItem.init(this, "textures/Textures_Dungeon.png");
-		TSpike.init(this, "textures/LosePanel.png");
+		TSpike.init(this, "textures/Textures_Dungeon.png");
 		TStartPanel.init(this, "textures/Menu.jpg");
 		TEndPanel.init(this, "textures/Ending.jpg");
 		TLosePanel.init(this, "textures/LosePanel.png");

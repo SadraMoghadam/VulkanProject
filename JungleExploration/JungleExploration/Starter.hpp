@@ -2100,7 +2100,7 @@ void Model<Vert>::loadModelGLTF(std::string file, bool encoded) {
 		int size = 0;
 		void *decomp;
 		
-		sscanf(reinterpret_cast<char *const>(&decrypted[0]), "%d", &size);
+		sscanf_s(reinterpret_cast<char *const>(&decrypted[0]), "%d", &size);
 //std::cout << decrypted.size() << ", decomp: " << size << "\n";
 //for(int i=0;i<32;i++) {
 //	std::cout << (int)decrypted[i] << "\n";

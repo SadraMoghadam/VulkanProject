@@ -60,7 +60,7 @@ void JungleExploration::RenderPlants(uint32_t currentImage)
 {
 	for (int i = 0; i < numOfPlants; i++)
 	{
-		GWorld = glm::translate(glm::mat4(1), glm::vec3(plantPositions[i].x, 0, plantPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(plantRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(plantPositions[i].x, 0, plantPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(plantRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.4f));
 		SetUboDs(currentImage, uboPlant, DSPlant, i, 0.7f);
 	}
 }
@@ -69,7 +69,7 @@ void JungleExploration::RenderFlowers(uint32_t currentImage)
 {
 	for (int i = 0; i < numOfFlowers; i++)
 	{
-		GWorld = glm::translate(glm::mat4(1), glm::vec3(flowerPositions[i].x, 0, flowerPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(flowerRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.2f));
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(flowerPositions[i].x, 0, flowerPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(flowerRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.4f));
 		SetUboDs(currentImage, uboFlower, DSFlower, i);
 	}
 }
@@ -87,7 +87,7 @@ void JungleExploration::RenderSmallRocks(uint32_t currentImage)
 {
 	for (int i = 0; i < numOfSmallRocks; i++)
 	{
-		GWorld = glm::translate(glm::mat4(1), glm::vec3(smallRockPositions[i].x, 0, smallRockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(smallRockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.1f));
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(smallRockPositions[i].x, 0, smallRockPositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(smallRockRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(.15f));
 		SetUboDs(currentImage, uboSmallRock, DSSmallRock, i);
 	}
 }
@@ -183,9 +183,9 @@ void JungleExploration::RenderSpikes(uint32_t currentImage)
 {
 	for (int i = 0; i < numOfSpikes; i++)
 	{
-		std::cout << spikePositions[i].x << " & ";
-		GWorld = glm::translate(glm::mat4(1), glm::vec3(spikePositions[i].x, 0, spikePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(spikeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(spikeScales[i]));
-		SetUboDs(currentImage, uboSpike, DSSpike, i);
+		//std::cout << spikePositions[i].x << " & ";
+		GWorld = glm::translate(glm::mat4(1), glm::vec3(spikePositions[i].x, 0.1f, spikePositions[i].y)) * glm::rotate(glm::mat4(1.0f), glm::radians(spikeRotations[i]), glm::vec3(0, 1, 0)) * glm::scale(glm::mat4(1), glm::vec3(spikeScales[i]));
+		SetUboDs(currentImage, uboSpike, DSSpike, i, 1, 5, 180, { 1, 1, 1 });
 	}
 }
 

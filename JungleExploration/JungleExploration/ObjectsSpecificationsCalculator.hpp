@@ -138,7 +138,7 @@ void JungleExploration::CalculateEnvironmentObjectsPositionsAndRotations()
 	// Spikes
 	for (int i = 0; i < numOfSpikes; i++)
 	{
-		spikeScales[i] = .05f;
+		spikeScales[i] = 0.7f;
 		CalculateRandomPositionsRotations(-mapSize / 2 + mountainThreshold, mapSize / 2 - mountainThreshold, true);
 		spikePositions[i] = { randX, randY };
 		spikeRotations[i] = randRot;
@@ -160,7 +160,7 @@ void JungleExploration::CalculateItemsPosition()
 		CheckItemPositionOverlap(numOfTrees2, treeThreshold, treeThresholdCoefficient, tree2Positions, tree2Scales, overlap);
 		CheckItemPositionOverlap(numOfTrees3, treeThreshold, treeThresholdCoefficient, tree3Positions, tree3Scales, overlap);
 		CheckItemPositionOverlap(numOfTrees4, treeThreshold, treeThresholdCoefficient, tree4Positions, tree4Scales, overlap);
-		//CheckItemPositionOverlap(numOfSpikes, spikeThreshold, 0, spikePositions, spikeScales, overlap);
+		CheckItemPositionOverlap(numOfSpikes, spikeThreshold, 0, spikePositions, spikeScales, overlap);
 		if (!overlap)
 			break;
 	}
