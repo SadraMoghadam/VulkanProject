@@ -75,8 +75,6 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 
 #pragma region PlayerMovementRegion
 
-	PlayerJump(deltaT, m);
-
 	static glm::vec3 pos = startingPosition;
 	static float yaw = 0, pitch = 0, roll = 0;
 	static glm::quat rot = glm::quat(1, 0, 0, 0);
@@ -88,9 +86,20 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 
 	glm::vec3 nextPos = pos;
 
+	PlayerJump(deltaT, m);
 	if (isJumping) {
 		VJump += g * deltaT;
 		//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
+	}
+
+
+	if (m.x != 0.0 && m.z != 0.0)
+	{
+		characterRotation.x = 0;
+		r.y = m.x;
+		if (m.z == -1.0)
+			r.y = -m.x;
+		m.x = 0;
 	}
 
 	glm::vec3 ux = glm::vec3(glm::rotate(glm::mat4(1), yaw, glm::vec3(0, 1, 0)) * glm::vec4(1, 0, 0, 1));
@@ -121,30 +130,7 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 		pos += uz * MOVE_SPEED * m.z * deltaT;
 		//std::cout << pos.x << "=" << pos.z << " & ";
 	}
-	if (m.x == 1.0 && m.z == 1.0)
-	{
-		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
-		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
-		//characterRotation.y = 1;
-	}
-	if (m.x == -1.0 && m.z == 1.0)
-	{
-		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
-		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
-		//characterRotation.y = -1;
-	}
-	if (m.x == 1.0 && m.z == -1.0)
-	{
-		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
-		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
-		//characterRotation.y = -1;
-	}
-	if (m.x == -1.0 && m.z == -1.0)
-	{
-		//characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
-		characterRotation.x = 0;//characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
-		//characterRotation.y = -1;
-	}
+
 	characterRotation += realNormX * MOVE_SPEED * m.x * deltaT;
 	characterRotation += realNormZ * MOVE_SPEED * m.z * deltaT;
 	
@@ -220,8 +206,8 @@ void JungleExploration::PickAnimation(float deltaT, glm::vec3& pos){
 	glm::vec3 uy = glm::vec3(0, VpickJump, 0);
 	
 	pos += 2.0f * uy * m.y * deltaT;
-	std::cout << pos.y;
-	std::cout << " \n";
+	//std::cout << pos.y;
+	//std::cout << " \n";
 	if (pos.y < 0.0f) {
 		VpickJump = VpickJumpIni;
 		animationCounter += 1;
