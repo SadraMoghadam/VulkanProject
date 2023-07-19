@@ -189,7 +189,7 @@ void JungleExploration::RenderSpikes(uint32_t currentImage)
 	}
 }
 
-void JungleExploration::SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible, float amb, float gamma, glm::vec3 sColor)
+void JungleExploration::SetUboDs(uint32_t currentImage, MeshUniformBlock ubo[], DescriptorSet DS[], int index, float visible, float amb, float gamma, glm::vec3 sColor)
 {
 	ubo[index].visible = visible;
 	ubo[index].amb = amb;

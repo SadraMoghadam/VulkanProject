@@ -2,7 +2,7 @@
 #include "TextMaker.hpp"
 
 
-struct GlobalUniformBufferObject
+struct GlobalUniformBlock
 {
 	alignas(16) glm::vec3 DlightDir;
 	alignas(16) glm::vec3 DlightColor;
@@ -10,7 +10,8 @@ struct GlobalUniformBufferObject
 	alignas(16) glm::vec3 eyePos;
 };
 
-struct UniformBufferObject {
+struct MeshUniformBlock 
+{
 	alignas(4) float visible;
 	alignas(4) float amb;
 	alignas(4) float gamma;
@@ -20,7 +21,8 @@ struct UniformBufferObject {
 	alignas(16) glm::mat4 nMat;
 };
 
-struct OverlayUniformBlock {
+struct OverlayUniformBlock 
+{
 	alignas(4) float visible;
 };
 
@@ -76,7 +78,7 @@ protected:
 	Model<VertexOverlay> MStartPanel, MEndPanel, MLosePanel, MInteractionMsg;
 
 	// Textures
-	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TSpike, TStartPanel, TEndPanel, TLosePanel, TInteractionMsg;
+	Texture TCharacter, TGround, TEnv, TEnv2, TItem, TStartPanel, TEndPanel, TLosePanel, TInteractionMsg;
 
 	// Descriptor sets
 	DescriptorSet DSGubo, DSCharacter, DSGround[4], DSPlant[numOfPlants], DSFlower[numOfFlowers],
@@ -86,8 +88,8 @@ protected:
 		DSSpike[numOfSpikes], DSStartPanel, DSEndPanel, DSLosePanel, DSInteractionMsg;
 
 	// Uniform Blocks
-	GlobalUniformBufferObject gubo;
-	UniformBufferObject uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers],
+	GlobalUniformBlock gubo;
+	MeshUniformBlock uboCharacter, uboGround[4], uboPlant[numOfPlants], uboFlower[numOfFlowers],
 		uboMountain[numOfMountains], uboSmallRock[numOfSmallRocks], uboStump[numOfStumps],
 		uboCloud[numOfClouds], uboRock[numOfRocks], uboTree[numOfTrees], uboTree1[numOfTrees1],
 		uboTree2[numOfTrees2], uboTree3[numOfTrees3], uboTree4[numOfTrees4], uboItem[numOfItems],
@@ -200,7 +202,7 @@ protected:
 	{
 		uniformBlocksInPool = 2 + 4 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
 			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + numOfSpikes * 2 + 4 + 1;
-		texturesInPool = 10 + 1;
+		texturesInPool = 9 + 1;
 		setsInPool = 2 + 4 + numOfPlants + numOfFlowers + numOfMountains + numOfSmallRocks +
 			numOfStumps + numOfClouds + numOfRocks + numOfTrees * 5 + numOfItems + numOfSpikes + 4 + 1;
 	}
@@ -285,7 +287,6 @@ protected:
 		TEnv.init(this, "textures/Texture_01.jpg");
 		TEnv2.init(this, "textures/Terrain-Texture_2.png");
 		TItem.init(this, "textures/Textures_Dungeon.png");
-		TSpike.init(this, "textures/Textures_Dungeon.png");
 		TStartPanel.init(this, "textures/Menu.jpg");
 		TEndPanel.init(this, "textures/Ending.jpg");
 		TLosePanel.init(this, "textures/LosePanel.png");
@@ -310,115 +311,115 @@ protected:
 
 		// Defining the Descriptor Sets
 		DSGubo.init(this, &DSLGubo, {
-					{0, UNIFORM, sizeof(GlobalUniformBufferObject), nullptr}
+					{0, UNIFORM, sizeof(GlobalUniformBlock), nullptr}
 			});
 		DSCharacter.init(this, &DSLToon, {
-						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+						{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 						{1, TEXTURE, 0, &TCharacter}
 			});
 		for (int i = 0; i < 4; i++)
 		{
 			DSGround[i].init(this, &DSLToonPhong, {
-						{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+						{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 						{1, TEXTURE, 0, &TGround}
 				});
 		}
 		for (int i = 0; i < numOfPlants; i++)
 		{
 			DSPlant[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfFlowers; i++)
 		{
 			DSFlower[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfMountains; i++)
 		{
 			DSMountain[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv2},
 				});
 		}
 		for (int i = 0; i < numOfSmallRocks; i++)
 		{
 			DSSmallRock[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfStumps; i++)
 		{
 			DSStump[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfClouds; i++)
 		{
 			DSCloud[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv2},
 				});
 		}
 		for (int i = 0; i < numOfRocks; i++)
 		{
 			DSRock[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfTrees; i++)
 		{
 			DSTree[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv2},
 				});
 		}
 		for (int i = 0; i < numOfTrees1; i++)
 		{
 			DSTree1[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfTrees2; i++)
 		{
 			DSTree2[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfTrees3; i++)
 		{
 			DSTree3[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfTrees4; i++)
 		{
 			DSTree4[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TEnv},
 				});
 		}
 		for (int i = 0; i < numOfItems; i++)
 		{
 			DSItem[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
 					{1, TEXTURE, 0, &TItem},
 				});
 		}
 		for (int i = 0; i < numOfSpikes; i++)
 		{
 			DSSpike[i].init(this, &DSLToon, {
-					{0, UNIFORM, sizeof(UniformBufferObject), nullptr},
-					{1, TEXTURE, 0, &TSpike},
+					{0, UNIFORM, sizeof(MeshUniformBlock), nullptr},
+					{1, TEXTURE, 0, &TItem},
 				});
 		}
 		DSStartPanel.init(this, &DSLOverlay, {
@@ -499,7 +500,6 @@ protected:
 		TEnv.cleanup();
 		TEnv2.cleanup();
 		TItem.cleanup();
-		TSpike.cleanup();
 		TStartPanel.cleanup();
 		TEndPanel.cleanup();
 		TLosePanel.cleanup();
@@ -826,7 +826,7 @@ protected:
 
 	void RenderSpikes(uint32_t currentImage);
 
-	void SetUboDs(uint32_t currentImage, UniformBufferObject ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, 
+	void SetUboDs(uint32_t currentImage, MeshUniformBlock ubo[], DescriptorSet DS[], int index, float visible = 1.0f, float amb = 1.0f, 
 		float gamma = 80.0f, glm::vec3 sColor = glm::vec3(1.0f));
 
 	void CalculateEnvironmentObjectsPositionsAndRotations();

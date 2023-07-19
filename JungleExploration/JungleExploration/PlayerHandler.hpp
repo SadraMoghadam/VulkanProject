@@ -8,6 +8,9 @@ glm::vec3 realNormY = { 0, 1, 0 };
 glm::vec3 realNormZ = { 0, 0, 1 };
 float movementAngle = 0;
 
+const float FOVy = glm::radians(45.0f);
+const float nearPlane = 0.1f;
+const float farPlane = 250.f;
 
 void JungleExploration::Spectate()
 {
@@ -30,7 +33,7 @@ void JungleExploration::Spectate()
 	camPos = camPos + MOVE_SPEED * m.y * glm::vec3(0, 1, 0) * deltaT;
 	camPos = camPos + MOVE_SPEED * m.z * uz * deltaT;
 
-	glm::mat4 M = glm::perspective(glm::radians(45.0f), Ar, 0.1f, 50.0f);
+	glm::mat4 M = glm::perspective(FOVy, Ar, nearPlane, farPlane);
 	M[1][1] *= -1;
 
 	glm::mat4 Mv = glm::rotate(glm::mat4(1.0), -camBeta, glm::vec3(1, 0, 0)) *
@@ -50,9 +53,6 @@ void JungleExploration::PlayerJump(float deltaT, glm::vec3& m)
 
 void JungleExploration::PlayerController(uint32_t currentImage)
 {
-	const float FOVy = glm::radians(45.0f);
-	const float nearPlane = 0.1f;
-	const float farPlane = 1000.f;
 
 	// Player starting point
 	const glm::vec3 startingPosition = glm::vec3(0.0, 0.0, 0.0);
