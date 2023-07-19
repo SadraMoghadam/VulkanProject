@@ -197,17 +197,13 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 
 void JungleExploration::PickAnimation(float deltaT, glm::vec3& pos){
 	glm::vec3 m = glm::vec3(0.0f, static_cast<int>(pickAnimation), 0.0f);
-	//std::cout << m.y;
 	if (pickAnimation) {
-		//std::cout << "pick animation is: \n" << pickAnimation;
 		VpickJump += gAnimation * deltaT;
-		//pos.y += VJump* deltaT * MOVE_SPEED * m.y;
 	}
 	glm::vec3 uy = glm::vec3(0, VpickJump, 0);
 	
 	pos += 2.0f * uy * m.y * deltaT;
 	//std::cout << pos.y;
-	//std::cout << " \n";
 	if (pos.y < 0.0f) {
 		VpickJump = VpickJumpIni;
 		animationCounter += 1;
@@ -216,7 +212,6 @@ void JungleExploration::PickAnimation(float deltaT, glm::vec3& pos){
 			pickAnimation = FALSE;
 			VpickJump = VpickJumpIni;
 			animationCounter = 0;
-			//std::cout << pickAnimation;
 		}
 		
 	}

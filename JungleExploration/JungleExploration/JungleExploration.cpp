@@ -38,8 +38,6 @@ struct VertexOverlay
 };
 
 
-//void GameLogic(JungleExploration* A, float Ar, glm::mat4& ViewPrj, glm::mat4& World);
-
 class JungleExploration : public BaseProject
 {
 protected:
@@ -200,16 +198,15 @@ protected:
 
 	void setDescriptorPool()
 	{
-		uniformBlocksInPool = 4 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
-			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + numOfSpikes * 2;
-		texturesInPool = 9 + 1;
-		setsInPool = 2 + 4 * 2 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
-			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + numOfSpikes * 2;
+		uniformBlocksInPool = 2 + 4 + numOfPlants * 2 + numOfFlowers * 2 + numOfMountains * 2 + numOfSmallRocks * 2 +
+			numOfStumps * 2 + numOfClouds * 2 + numOfRocks * 2 + numOfTrees * 2 * 5 + numOfItems * 2 + numOfSpikes * 2 + 4 + 1;
+		texturesInPool = 10 + 1;
+		setsInPool = 2 + 4 + numOfPlants + numOfFlowers + numOfMountains + numOfSmallRocks +
+			numOfStumps + numOfClouds + numOfRocks + numOfTrees * 5 + numOfItems + numOfSpikes + 4 + 1;
 	}
 
 	void localInit()
 	{
-		/* TODO */
 		// Initializing Descriptor Set Layouts
 		DSLGubo.init(this, {
 			{0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_ALL_GRAPHICS}
@@ -306,7 +303,6 @@ protected:
 
 	void pipelinesAndDescriptorSetsInit()
 	{
-		/* TODO */
 		// Creating Pipelines
 		PToon.create();
 		PToonPhong.create();
@@ -443,11 +439,11 @@ protected:
 			});
 
 		txt.pipelinesAndDescriptorSetsInit();
+
 	}
 
 	void pipelinesAndDescriptorSetsCleanup()
 	{
-		/* TODO */
 		// Cleanup Pipelines
 		PToon.cleanup();
 		PToonPhong.cleanup();
@@ -497,7 +493,6 @@ protected:
 
 	void localCleanup()
 	{
-		/* TODO */
 		// Cleanup Textures
 		TCharacter.cleanup();
 		TGround.cleanup();
@@ -544,11 +539,11 @@ protected:
 		POverlay.destroy();
 
 		txt.localCleanup();
+
 	}
 
 	void populateCommandBuffer(VkCommandBuffer commandBuffer, int currentImage)
 	{
-		/* TODO */
 		// Set Gubo
 		DSGubo.bind(commandBuffer, PToon, 0, currentImage);
 
@@ -661,6 +656,9 @@ protected:
 				static_cast<uint32_t>(MSpike.indices.size()), 1, 0, 0, 0);
 		}
 
+
+		DSGubo.bind(commandBuffer, PToonPhong, 0, currentImage);
+
 		// Ground
 		PToonPhong.bind(commandBuffer);
 		MGround.bind(commandBuffer);
@@ -698,7 +696,6 @@ protected:
 
 	void updateUniformBuffer(uint32_t currentImage)
 	{
-		/* TODO */
 		static bool debounce = false;
 		static int curDebounce = 0;
 
