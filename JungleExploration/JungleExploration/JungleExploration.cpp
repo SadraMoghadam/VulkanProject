@@ -726,8 +726,6 @@ protected:
 		uboLosePanel.visible = (currentScene == 3) ? 1.0f : 0.0f;
 		DSLosePanel.map(currentImage, &uboLosePanel, sizeof(uboLosePanel), 0);
 
-		if (currentScene != 1)
-			return;
 
 
 		if (glfwGetKey(window, GLFW_KEY_M)) {
@@ -745,18 +743,20 @@ protected:
 				curDebounce = 0;
 			}
 		}
-
-		switch (gameState)
+		if (currentScene == 1)
 		{
-		case 0:
-			Spectate();
-			break;
-		case 1:
-			PlayerController(currentImage);
-			break;
-		default:
-			break;
+			switch (gameState)
+			{
+			case 0:
+				Spectate();
+				break;
+			case 1:
+				PlayerController(currentImage);
+				break;
+			default:
+				break;
 
+			}
 		}
 
 		gubo.DlightDir = glm::vec3(cos(glm::radians(135.0f)) * cos(glm::radians(210.0f)), sin(glm::radians(135.0f)), cos(glm::radians(135.0f)) * sin(glm::radians(210.0f)));
@@ -766,6 +766,7 @@ protected:
 
 		DSGubo.map(currentImage, &gubo, sizeof(gubo), 0);
 
+		
 		RenderCharacter(currentImage);
 		RenderEnvironment(currentImage);
 	}
