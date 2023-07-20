@@ -65,14 +65,22 @@ void JungleExploration::PlayerController(uint32_t currentImage)
 	const float maxPitch = glm::radians(60.0f);
 	// Rotation and motion speed
 	const float ROT_SPEED = glm::radians(120.0f);
-	const float MOVE_SPEED = 5.0f;
+	const float D_MOVE_SPEED = 5.0f;
+	const float M_MOVE_SPEED = 7.0f;
+	float MOVE_SPEED = D_MOVE_SPEED;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT)) {
+		 MOVE_SPEED= M_MOVE_SPEED;
+	}
 
 	float deltaT;
 	glm::vec3 m = glm::vec3(0.0f, static_cast<int>(isJumping), 0.0f), r = glm::vec3(0.0f);
 	bool fire = false;
 	getSixAxis(deltaT, m, r, fire);
 
-
+	if (glfwGetKey(window, GLFW_KEY_SPACE)) {
+		isJumping = TRUE;
+		//m.y = 1.0f;
+	}
 #pragma region PlayerMovementRegion
 
 	static glm::vec3 pos = startingPosition;
